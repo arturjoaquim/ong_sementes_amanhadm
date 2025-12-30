@@ -1,0 +1,40 @@
+package br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Table(name = "enderecos", schema = "pessoas")
+@Getter
+@Setter
+public class PersonAddressModel {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pessoa_id")
+    private IndividualPersonModel person;
+
+    @Column(name = "cep")
+    private String cep;
+
+    @Column(name = "numero")
+    private String streetNumber;
+
+    @Column(name = "logradouro")
+    private String street;
+
+    @Column(name = "bairro")
+    private String neighborhood;
+
+    @Column(name = "cidade_nome")
+    private String city;
+
+    @Column(name = "uf_sigla", columnDefinition = "bpchar(2)")
+    private String uf;
+
+    @Column(name = "complemento")
+    private String complement;
+}
