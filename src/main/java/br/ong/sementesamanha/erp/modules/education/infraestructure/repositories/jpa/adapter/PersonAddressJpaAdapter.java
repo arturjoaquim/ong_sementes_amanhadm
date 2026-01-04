@@ -1,14 +1,14 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.jpa.adapter;
 
 import br.ong.sementesamanha.erp.modules.education.domain.entities.PersonAddress;
-import br.ong.sementesamanha.erp.modules.education.domain.ports.PersonAddressRepositoryPort;
+import br.ong.sementesamanha.erp.modules.education.domain.ports.repository.PersonAddressRepository;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.PersonAddressMapper;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.PersonAddressModel;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.jpa.PersonAddressJpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class PersonAddressJpaAdapter implements PersonAddressRepositoryPort {
+public class PersonAddressJpaAdapter implements PersonAddressRepository {
 
     private final PersonAddressJpaRepository jpaRepository;
     private final PersonAddressMapper mapper;

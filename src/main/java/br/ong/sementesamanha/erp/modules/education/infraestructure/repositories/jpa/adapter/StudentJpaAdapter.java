@@ -3,7 +3,7 @@ package br.ong.sementesamanha.erp.modules.education.infraestructure.repositories
 import br.ong.sementesamanha.erp.modules.education.domain.entities.Student;
 import br.ong.sementesamanha.erp.modules.education.domain.projections.StudentPreview;
 import br.ong.sementesamanha.erp.modules.education.domain.filters.StudentFilter;
-import br.ong.sementesamanha.erp.modules.education.domain.ports.StudentRepositoryPort;
+import br.ong.sementesamanha.erp.modules.education.domain.ports.repository.StudentRepository;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.StudentMapper;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.academico.StudentModel;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.jpa.StudentJpaRepository;
@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
-public class StudentJpaAdapter implements StudentRepositoryPort {
+public class StudentJpaAdapter implements StudentRepository {
 
     private final StudentJpaRepository studentJpaRepository;
     private final StudentMapper studentMapper;

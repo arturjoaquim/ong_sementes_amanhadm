@@ -4,8 +4,9 @@ import br.ong.sementesamanha.erp.modules.education.application.dtos.CreateStuden
 import br.ong.sementesamanha.erp.modules.education.application.dtos.StudentPreviewDTO;
 import br.ong.sementesamanha.erp.modules.education.application.dtos.UpdateStudentDTO;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.Student;
+import br.ong.sementesamanha.erp.modules.education.domain.entities.StudentGuardian;
 import br.ong.sementesamanha.erp.modules.education.domain.projections.StudentPreview;
-import br.ong.sementesamanha.erp.modules.education.infraestructure.models.academico.LegalGuardianModel;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.models.academico.StudentGuardianModel;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.academico.StudentModel;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.IndividualPersonModel;
 import org.springframework.stereotype.Component;
@@ -15,19 +16,22 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Component
 public class StudentMapper {
 
     private final IndividualPersonMapper individualPersonMapper;
+    private final StudentGuardianMapper studentGuardianMapper;
 
-    public StudentMapper(IndividualPersonMapper individualPersonMapper) {
+    public StudentMapper(IndividualPersonMapper individualPersonMapper, StudentGuardianMapper studentGuardianMapper) {
         this.individualPersonMapper = individualPersonMapper;
+        this.studentGuardianMapper = studentGuardianMapper;
     }
 
     public Student toDomain(StudentModel model) {
         if (model == null) return null;
-        
+
         Student student = new Student();
         student.setId(model.getId());
         if (model.getPerson() != null) {
@@ -39,8 +43,8 @@ public class StudentMapper {
         student.setTransportResponsibleName(model.getTransportResponsibleName());
         student.setRegistrationDate(model.getRegistrationDate());
         student.setActive(model.isActive());
-        student.setNotes(new ArrayList<>()); 
-        
+        student.setNotes(new ArrayList<>());
+
         return student;
     }
 
@@ -62,6 +66,12 @@ public class StudentMapper {
         model.setTransportResponsibleName(domain.getTransportResponsibleName());
         model.setRegistrationDate(domain.getRegistrationDate());
         model.setActive(domain.isActive());
+
+        if (domain.getGuardians() != null) {
+            model.setGuardians(domain.getGuardians().stream()
+                    .map(sg -> studentGuardianMapper.toModel(sg, model))
+                    .collect(Collectors.toSet()));
+        }
         
         return model;
     }
@@ -70,7 +80,7 @@ public class StudentMapper {
         if (model == null) return null;
 
         String studentName = (model.getPerson() != null) ? model.getPerson().getPersonName() : "N/A";
-        LegalGuardianModel firstGuardian = model.getGuardians().stream().findFirst().orElse(null);
+        StudentGuardianModel firstGuardian = model.getGuardians().stream().findFirst().orElse(null);
 
         Integer age = null;
         if (model.getPerson() != null && model.getPerson().getBirthDate() != null) {
@@ -81,8 +91,8 @@ public class StudentMapper {
         return new StudentPreview(
                 model.getId(),
                 studentName,
-                firstGuardian.getPerson().getPersonName(),
-                firstGuardian.getPerson().getContact().getMobilePhone(),
+                firstGuardian.getGuardian().getPerson().getPersonName(),
+                firstGuardian.getGuardian().getPerson().getContact().getMobilePhone(),
                 model.isActive(),
                 model.getPerson().getEducation().getEducationLevelId().toString(),
                 age
@@ -98,7 +108,7 @@ public class StudentMapper {
                 preview.guardianName(),
                 preview.guardianPhone(),
                 preview.active() ? "Ativo" : "Inativo",
-                0.0f, 
+                0.0f,
                 preview.grade(),
                 preview.age()
         );
@@ -115,6 +125,15 @@ public class StudentMapper {
             student.setTransportResponsibleName(dto.studentData().transportResponsibleName());
         }
         
+        if (dto.guardians() != null) {
+            student.setGuardians(dto.guardians().stream().map(g -> {
+                StudentGuardian sg = new StudentGuardian();
+                sg.setGuardianId(g.guardianId());
+                sg.setKinshipId(g.kinshipId());
+                return sg;
+            }).collect(Collectors.toSet()));
+        }
+
         student.setRegistrationDate(dto.registrationDate());
         return student;
     }

@@ -1,5 +1,6 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.mappers;
 
+import br.ong.sementesamanha.erp.modules.education.application.dtos.CreateContactDTO;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.PersonContact;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.PersonContactModel;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,15 @@ public class PersonContactMapper {
         domain.setHasWhatsApp(model.isHasWhatsApp());
         domain.setEmail(model.getEmail());
         return domain;
+    }
+
+    public PersonContact toDomain(CreateContactDTO dto) {
+        PersonContact contact = new PersonContact();
+        contact.setTelephone(dto.telephone());
+        contact.setMobilePhone(dto.mobilePhone());
+        contact.setHasWhatsApp(dto.hasWhatsApp());
+        contact.setEmail(dto.email());
+        return contact;
     }
 
     public PersonContactModel toModel(PersonContact domain) {

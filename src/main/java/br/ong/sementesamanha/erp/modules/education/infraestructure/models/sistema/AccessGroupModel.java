@@ -1,15 +1,15 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.models.sistema;
 
+import br.ong.sementesamanha.erp.modules.education.infraestructure.models.base.Auditable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "grupos_acesso", schema = "sistema")
 @Getter
 @Setter
-public class AccessGroupModel {
+public class AccessGroupModel extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,7 +19,4 @@ public class AccessGroupModel {
 
     @Column(name = "descricao")
     private String description;
-
-    @Column(name = "criado_em")
-    private LocalDateTime createdAt;
 }

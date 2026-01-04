@@ -1,5 +1,6 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.models.academico;
 
+import br.ong.sementesamanha.erp.modules.education.infraestructure.models.base.Auditable;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.IndividualPersonModel;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.util.Set;
 @Table(name = "alunos", schema = "academico")
 @Getter
 @Setter
-public class StudentModel {
+public class StudentModel extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -41,14 +42,8 @@ public class StudentModel {
     @Column(name = "ativo")
     private boolean active;
 
-    @ManyToMany
-    @JoinTable(
-        name = "alunos_responsaveis",
-        schema = "academico",
-        joinColumns = @JoinColumn(name = "aluno_id"),
-        inverseJoinColumns = @JoinColumn(name = "responsavel_id")
-    )
-    private Set<LegalGuardianModel> guardians;
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<StudentGuardianModel> guardians;
 
     @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private HomeConditionModel homeCondition;

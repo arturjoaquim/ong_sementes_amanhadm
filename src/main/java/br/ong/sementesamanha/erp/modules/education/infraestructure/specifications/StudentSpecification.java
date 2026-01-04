@@ -2,6 +2,7 @@ package br.ong.sementesamanha.erp.modules.education.infraestructure.specificatio
 
 import br.ong.sementesamanha.erp.modules.education.domain.filters.StudentFilter;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.academico.LegalGuardianModel;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.models.academico.StudentGuardianModel;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.academico.StudentModel;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.IndividualPersonModel;
 import jakarta.persistence.criteria.Fetch;
@@ -46,14 +47,21 @@ public class StudentSpecification {
             if (query.getResultType() != Long.class && query.getResultType() != long.class) {
                 query.distinct(true);
 
-                // Fetch da pessoa e da educação da pessoa
+                // Fetch da pessoa e seus relacionamentos OneToOne para evitar N+1
                 Fetch<StudentModel, IndividualPersonModel> personFetch = root.fetch("person", JoinType.LEFT);
                 personFetch.fetch("education", JoinType.LEFT);
+                personFetch.fetch("address", JoinType.LEFT);
+                personFetch.fetch("contact", JoinType.LEFT);
 
-                // Fetch dos responsáveis e da pessoa de cada responsável
-                Fetch<StudentModel, LegalGuardianModel> guardianFetch = root.fetch("guardians", JoinType.LEFT);
+                // Fetch dos responsáveis e da pessoa/contato de cada responsável
+                Fetch<StudentModel, StudentGuardianModel> studenGuardianFetch = root.fetch("guardians", JoinType.LEFT);
+                Fetch<StudentGuardianModel, LegalGuardianModel> guardianFetch = studenGuardianFetch.fetch("guardian", JoinType.LEFT);
                 Fetch<LegalGuardianModel, IndividualPersonModel> personGuardianFetch = guardianFetch.fetch("person", JoinType.LEFT);
                 personGuardianFetch.fetch("contact", JoinType.LEFT);
+                
+                // Fetch dos relacionamentos OneToOne do estudante para evitar N+1
+                root.fetch("homeCondition", JoinType.LEFT);
+                root.fetch("healthRecord", JoinType.LEFT);
             }
             return criteriaBuilder.conjunction();
         };

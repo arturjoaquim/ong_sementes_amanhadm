@@ -1,5 +1,6 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas;
 
+import br.ong.sementesamanha.erp.modules.education.infraestructure.models.base.Auditable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +9,7 @@ import lombok.Setter;
 @Table(name = "enderecos", schema = "pessoas")
 @Getter
 @Setter
-public class PersonAddressModel {
+public class PersonAddressModel extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

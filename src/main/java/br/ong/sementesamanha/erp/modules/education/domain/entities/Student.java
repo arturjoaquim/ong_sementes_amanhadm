@@ -6,8 +6,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
-@Data
+import java.util.Set;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Student {
@@ -20,4 +21,5 @@ public class Student {
     private Date registrationDate;
     private boolean active;
     private List<StudentNote> notes;
+    private Set<StudentGuardian> guardians;
 }

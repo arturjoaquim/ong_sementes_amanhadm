@@ -1,16 +1,16 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.models.sistema;
 
+import br.ong.sementesamanha.erp.modules.education.infraestructure.models.base.Auditable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
 @Table(name = "usuarios", schema = "sistema")
 @Getter
 @Setter
-public class UserModel {
+public class UserModel extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,9 +23,6 @@ public class UserModel {
 
     @Column(name = "ativo")
     private boolean active;
-
-    @Column(name = "criado_em")
-    private LocalDateTime createdAt;
 
     @ManyToMany
     @JoinTable(

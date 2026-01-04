@@ -1,7 +1,7 @@
-package br.ong.sementesamanha.erp.modules.education.domain.ports;
+package br.ong.sementesamanha.erp.modules.education.domain.ports.repository;
 
 import br.ong.sementesamanha.erp.modules.education.domain.entities.PersonContact;
 
-public interface PersonContactRepositoryPort {
+public interface PersonContactRepository {
     PersonContact save(PersonContact contact);
 }

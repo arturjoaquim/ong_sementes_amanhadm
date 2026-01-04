@@ -1,13 +1,12 @@
 package br.ong.sementesamanha.erp.modules.education.application.services;
 
 import br.ong.sementesamanha.erp.modules.education.domain.entities.IndividualPerson;
-import br.ong.sementesamanha.erp.modules.education.domain.ports.IndividualPersonRepository;
-import br.ong.sementesamanha.erp.modules.education.domain.ports.IndividualPersonServicePort;
+import br.ong.sementesamanha.erp.modules.education.domain.ports.repository.IndividualPersonRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class IndividualPersonService implements IndividualPersonServicePort {
+public class IndividualPersonService {
 
     private final IndividualPersonRepository repository;
 
@@ -15,10 +14,9 @@ public class IndividualPersonService implements IndividualPersonServicePort {
         this.repository = repository;
     }
 
-    @Override
     @Transactional
     public IndividualPerson create(IndividualPerson person) {
-        // Validações de domínio da pessoa aqui (CPF, idade, etc)
+        // A lógica de criação da Person base foi movida para o JPA via Cascade e @MapsId
         return repository.save(person);
     }
 }

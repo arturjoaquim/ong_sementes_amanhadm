@@ -1,7 +1,7 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.jpa.adapter;
 
 import br.ong.sementesamanha.erp.modules.education.domain.entities.IndividualPerson;
-import br.ong.sementesamanha.erp.modules.education.domain.ports.IndividualPersonRepository;
+import br.ong.sementesamanha.erp.modules.education.domain.ports.repository.IndividualPersonRepository;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.IndividualPersonMapper;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.IndividualPersonModel;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.jpa.IndividualPersonJpaRepository;

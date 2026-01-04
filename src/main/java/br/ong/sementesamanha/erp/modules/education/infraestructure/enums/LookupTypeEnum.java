@@ -1,9 +1,9 @@
-package br.ong.sementesamanha.erp.modules.education.domain.types;
+package br.ong.sementesamanha.erp.modules.education.infraestructure.enums;
 
 import br.ong.sementesamanha.erp.modules.education.application.dtos.LookupDTO;
 import org.springframework.jdbc.core.RowMapper;
 
-public enum LookupType {
+public enum LookupTypeEnum {
     POSITION("cargos", Mappers.DESCRIPTION),
     PERIOD("periodos", Mappers.DESCRIPTION),
     EDUCATION_STATUS("status_ensino", Mappers.DESCRIPTION),
@@ -23,7 +23,7 @@ public enum LookupType {
     private final String tableName;
     private final RowMapper<LookupDTO> rowMapper;
 
-    LookupType(String tableName, RowMapper<LookupDTO> rowMapper) {
+    LookupTypeEnum(String tableName, RowMapper<LookupDTO> rowMapper) {
         this.tableName = tableName;
         this.rowMapper = rowMapper;
     }

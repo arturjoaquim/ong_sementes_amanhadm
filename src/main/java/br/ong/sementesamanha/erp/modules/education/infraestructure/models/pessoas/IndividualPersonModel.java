@@ -3,7 +3,11 @@ package br.ong.sementesamanha.erp.modules.education.infraestructure.models.pesso
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -11,12 +15,13 @@ import java.util.List;
 @Table(name = "fisicas", schema = "pessoas")
 @Getter
 @Setter
+@EntityListeners(AuditingEntityListener.class) // Necessário para auditoria parcial
 public class IndividualPersonModel {
     @Id
     @Column(name = "pessoa_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @MapsId
     @JoinColumn(name = "pessoa_id")
     private PersonModel person;
@@ -54,4 +59,13 @@ public class IndividualPersonModel {
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PersonDocumentModel> documents;
+
+    // Auditoria Parcial
+    @LastModifiedDate
+    @Column(name = "atualizado_em")
+    private LocalDateTime updatedAt;
+
+    @LastModifiedBy
+    @Column(name = "atualizado_por_id")
+    private Long updatedBy;
 }

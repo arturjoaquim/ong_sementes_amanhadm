@@ -1,8 +1,9 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.mappers;
 
-import br.ong.sementesamanha.erp.modules.education.application.dtos.*;
-import br.ong.sementesamanha.erp.modules.education.domain.entities.*;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.CreatePersonDTO;
+import br.ong.sementesamanha.erp.modules.education.domain.entities.IndividualPerson;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.IndividualPersonModel;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.PersonModel;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
@@ -55,7 +56,11 @@ public class IndividualPersonMapper {
         if (domain == null) return null;
 
         IndividualPersonModel model = new IndividualPersonModel();
-        model.setId(domain.getId());
+        
+        PersonModel personModel = new PersonModel();
+        personModel.setPersonType(1);
+        model.setPerson(personModel);
+
         model.setPersonName(domain.getPersonName());
         model.setNaturalnessId(domain.getNaturalnessId());
         model.setRaceId(domain.getRaceId());
@@ -104,57 +109,21 @@ public class IndividualPersonMapper {
         person.setSexId(dto.sexId());
 
         if (dto.address() != null) {
-            person.setAddress(toAddressDomain(dto.address()));
+            person.setAddress(this.addressMapper.toDomain(dto.address()));
         }
         if (dto.contact() != null) {
-            person.setContact(toContactDomain(dto.contact()));
+            person.setContact(this.contactMapper.toDomain(dto.contact()));
         }
         if (dto.education() != null) {
-            person.setEducation(toEducationDomain(dto.education()));
+            person.setEducation(this.educationMapper.toDomain(dto.education()));
         }
         if (dto.documents() != null) {
             person.setDocuments(dto.documents().stream()
-                    .map(this::toDocumentDomain)
+                    .map(this.documentMapper::toDomain)
                     .collect(Collectors.toList()));
         }
 
         return person;
     }
 
-    private PersonAddress toAddressDomain(CreateAddressDTO dto) {
-        PersonAddress address = new PersonAddress();
-        address.setCep(dto.cep());
-        address.setStreetNumber(dto.streetNumber());
-        address.setStreet(dto.street());
-        address.setNeighborhood(dto.neighborhood());
-        address.setCity(dto.city());
-        address.setComplement(dto.complement());
-        address.setUf(dto.uf());
-        return address;
-    }
-
-    private PersonContact toContactDomain(CreateContactDTO dto) {
-        PersonContact contact = new PersonContact();
-        contact.setTelephone(dto.telephone());
-        contact.setMobilePhone(dto.mobilePhone());
-        contact.setHasWhatsApp(dto.hasWhatsApp());
-        contact.setEmail(dto.email());
-        return contact;
-    }
-
-    private IndividualPersonEducation toEducationDomain(CreateEducationDTO dto) {
-        IndividualPersonEducation education = new IndividualPersonEducation();
-        education.setInstitution(dto.institution());
-        education.setPeriodId(dto.periodId());
-        education.setEducationLevelId(dto.educationLevelId());
-        education.setEducationStatusId(dto.educationStatusId());
-        return education;
-    }
-
-    private PersonDocument toDocumentDomain(CreateDocumentDTO dto) {
-        PersonDocument document = new PersonDocument();
-        document.setDocumentTypeId(dto.documentTypeId());
-        document.setDocumentValue(dto.number());
-        return document;
-    }
 }

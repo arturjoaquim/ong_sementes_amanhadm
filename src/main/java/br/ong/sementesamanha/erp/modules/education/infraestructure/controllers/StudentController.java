@@ -3,12 +3,12 @@ package br.ong.sementesamanha.erp.modules.education.infraestructure.controllers;
 import br.ong.sementesamanha.erp.modules.education.application.dtos.CreateStudentDTO;
 import br.ong.sementesamanha.erp.modules.education.application.dtos.StudentPreviewDTO;
 import br.ong.sementesamanha.erp.modules.education.application.dtos.UpdateStudentDTO;
+import br.ong.sementesamanha.erp.modules.education.application.services.StudentService;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.IndividualPerson;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.Student;
 import br.ong.sementesamanha.erp.modules.education.domain.filters.StudentFilter;
 import br.ong.sementesamanha.erp.modules.education.domain.projections.StudentPreview;
-import br.ong.sementesamanha.erp.modules.education.domain.ports.StudentRepositoryPort;
-import br.ong.sementesamanha.erp.modules.education.domain.ports.StudentServicePort;
+import br.ong.sementesamanha.erp.modules.education.domain.ports.repository.StudentRepository;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.IndividualPersonMapper;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.StudentMapper;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/students")
 class StudentController {
 
-    private final StudentRepositoryPort studentRepository;
-    private final StudentServicePort studentService;
+    private final StudentRepository studentRepository;
+    private final StudentService studentService;
     private final StudentMapper studentMapper;
     private final IndividualPersonMapper individualPersonMapper;
 
-    public StudentController(StudentRepositoryPort studentRepository, 
-                             StudentServicePort studentService,
+    public StudentController(StudentRepository studentRepository, 
+                             StudentService studentService,
                              StudentMapper studentMapper,
                              IndividualPersonMapper individualPersonMapper) {
         this.studentRepository = studentRepository;
@@ -51,7 +51,7 @@ class StudentController {
         Student student = studentMapper.toDomain(dto);
         IndividualPerson person = individualPersonMapper.toDomain(dto.person());
         
-        Student created = studentService.create(student, person);
+        Student created = studentService.create(student, person, dto.guardians());
         return ResponseEntity.created(URI.create("/students/" + created.getId())).build();
     }
 

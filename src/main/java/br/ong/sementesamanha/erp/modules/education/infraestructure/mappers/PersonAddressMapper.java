@@ -1,5 +1,6 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.mappers;
 
+import br.ong.sementesamanha.erp.modules.education.application.dtos.CreateAddressDTO;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.PersonAddress;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.PersonAddressModel;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,18 @@ public class PersonAddressMapper {
         domain.setCity(model.getCity());
         domain.setComplement(model.getComplement());
         return domain;
+    }
+
+    public PersonAddress toDomain(CreateAddressDTO dto) {
+        PersonAddress address = new PersonAddress();
+        address.setCep(dto.cep());
+        address.setStreetNumber(dto.streetNumber());
+        address.setStreet(dto.street());
+        address.setNeighborhood(dto.neighborhood());
+        address.setCity(dto.city());
+        address.setComplement(dto.complement());
+        address.setUf(dto.uf());
+        return address;
     }
 
     public PersonAddressModel toModel(PersonAddress domain) {

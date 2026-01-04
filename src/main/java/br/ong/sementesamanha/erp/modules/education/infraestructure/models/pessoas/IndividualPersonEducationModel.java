@@ -3,11 +3,17 @@ package br.ong.sementesamanha.erp.modules.education.infraestructure.models.pesso
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "escolaridade", schema = "pessoas")
 @Getter
 @Setter
+@EntityListeners(AuditingEntityListener.class)
 public class IndividualPersonEducationModel {
     @Id
     @Column(name = "pessoa_id")
@@ -29,4 +35,12 @@ public class IndividualPersonEducationModel {
 
     @Column(name = "status_ensino_id")
     private Long educationStatusId;
+
+    @LastModifiedDate
+    @Column(name = "atualizado_em")
+    private LocalDateTime updatedAt;
+
+    @LastModifiedBy
+    @Column(name = "atualizado_por_id")
+    private Long updatedBy;
 }

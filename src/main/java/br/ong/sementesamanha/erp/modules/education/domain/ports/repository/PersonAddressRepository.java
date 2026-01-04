@@ -1,9 +1,7 @@
-package br.ong.sementesamanha.erp.modules.education.domain.ports;
+package br.ong.sementesamanha.erp.modules.education.domain.ports.repository;
 
 import br.ong.sementesamanha.erp.modules.education.domain.entities.PersonAddress;
-import java.util.Optional;
 
 public interface PersonAddressRepository {
     PersonAddress save(PersonAddress address);
-    Optional<PersonAddress> findByPersonId(Long personId);
 }
