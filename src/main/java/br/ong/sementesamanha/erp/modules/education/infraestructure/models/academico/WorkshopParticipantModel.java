@@ -1,15 +1,15 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.models.academico;
 
+import br.ong.sementesamanha.erp.modules.education.infraestructure.models.base.Auditable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "participantes_oficina", schema = "academico")
 @Getter
 @Setter
-public class WorkshopParticipantModel {
+public class WorkshopParticipantModel extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,7 +21,4 @@ public class WorkshopParticipantModel {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "aluno_id")
     private StudentModel student;
-
-    @Column(name = "data_inscricao")
-    private LocalDate registrationDate;
 }

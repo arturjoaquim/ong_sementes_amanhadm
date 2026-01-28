@@ -22,7 +22,11 @@ public class LegalGuardianJpaAdapter implements LegalGuardianRepository {
 
     @Override
     public LegalGuardian save(LegalGuardian guardian) {
-        LegalGuardianModel model = mapper.toModel(guardian);
+        LegalGuardianModel model = Optional.ofNullable(guardian.getId())
+                .flatMap(jpaRepository::findById)
+                .orElseGet(LegalGuardianModel::new);
+
+        mapper.updateModelFromDomain(model, guardian);
         LegalGuardianModel saved = jpaRepository.save(model);
         return mapper.toDomain(saved);
     }

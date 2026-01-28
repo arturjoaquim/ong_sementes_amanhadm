@@ -1,7 +1,7 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.models.rh;
 
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.base.Auditable;
-import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.PersonModel;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.IndividualPersonModel;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.sistema.UserModel;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -18,7 +18,7 @@ public class EmployeeModel extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pessoa_id")
-    private PersonModel person;
+    private IndividualPersonModel person;
 
     @Column(name = "cargo_id")
     private Long positionId;

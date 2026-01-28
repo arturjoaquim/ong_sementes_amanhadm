@@ -23,6 +23,7 @@ public class DataInitializer {
                 // A senha deve ser encodada (hash) antes de salvar
                 admin.setPasswordHash(passwordEncoder.encode("admin"));
                 admin.setCreatedBy(1L);
+                admin.setActive(true);
 
                 userRepository.save(admin);
 

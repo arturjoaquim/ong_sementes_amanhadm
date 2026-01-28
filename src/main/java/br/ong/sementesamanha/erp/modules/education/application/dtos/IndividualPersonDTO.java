@@ -3,7 +3,7 @@ package br.ong.sementesamanha.erp.modules.education.application.dtos;
 import java.util.Date;
 import java.util.List;
 
-public record CreatePersonDTO(
+public record IndividualPersonDTO(
     String personName,
     Date birthDate,
     String motherName,
@@ -11,8 +11,8 @@ public record CreatePersonDTO(
     Long naturalnessId,
     Long raceId,
     Long sexId,
-    CreateAddressDTO address,
-    CreateContactDTO contact,
-    CreateEducationDTO education,
-    List<CreateDocumentDTO> documents
+    PersonAddressDTO address,
+    PersonContactDTO contact,
+    PersonEducationDTO education,
+    List<PersonDocumentDTO> documents
 ) {}

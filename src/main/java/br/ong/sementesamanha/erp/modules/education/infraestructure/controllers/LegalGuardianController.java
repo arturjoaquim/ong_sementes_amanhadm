@@ -1,15 +1,13 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.controllers;
 
 import br.ong.sementesamanha.erp.modules.education.application.dtos.CreateLegalGuardianDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.UpdateLegalGuardianDTO;
 import br.ong.sementesamanha.erp.modules.education.application.services.LegalGuardianService;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.IndividualPerson;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.LegalGuardian;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.IndividualPersonMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -30,5 +28,11 @@ public class LegalGuardianController {
         IndividualPerson person = personMapper.toDomain(dto.person());
         LegalGuardian createdGuardian = service.create(person);
         return ResponseEntity.created(URI.create("/guardians/" + createdGuardian.getId())).body(createdGuardian);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody UpdateLegalGuardianDTO dto) {
+        service.update(id, dto);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -7,4 +7,7 @@ public class StudentGuardian {
     private Long studentId;
     private Long guardianId;
     private Long kinshipId;
+    
+    // Enriquecimento para detalhes
+    private LegalGuardian guardian;
 }

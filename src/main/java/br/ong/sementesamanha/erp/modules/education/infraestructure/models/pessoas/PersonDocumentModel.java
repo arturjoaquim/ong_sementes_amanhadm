@@ -31,4 +31,7 @@ public class PersonDocumentModel extends Auditable {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "dados_extras", columnDefinition = "jsonb")
     private Map<String, Object> extraData;
+
+    @Column(name="ativo")
+    private Boolean active;
 }

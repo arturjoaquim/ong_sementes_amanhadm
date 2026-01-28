@@ -1,6 +1,6 @@
 package br.ong.sementesamanha.erp.modules.education.application.dtos;
 
-public record CreateAddressDTO(
+public record PersonAddressDTO(
     String cep,
     String streetNumber,
     String street,

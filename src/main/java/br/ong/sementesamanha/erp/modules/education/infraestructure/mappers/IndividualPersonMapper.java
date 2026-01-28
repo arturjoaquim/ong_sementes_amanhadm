@@ -1,6 +1,6 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.mappers;
 
-import br.ong.sementesamanha.erp.modules.education.application.dtos.CreatePersonDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.IndividualPersonDTO;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.IndividualPerson;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.IndividualPersonModel;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.PersonModel;
@@ -56,11 +56,25 @@ public class IndividualPersonMapper {
         if (domain == null) return null;
 
         IndividualPersonModel model = new IndividualPersonModel();
-        
-        PersonModel personModel = new PersonModel();
-        personModel.setPersonType(1);
-        model.setPerson(personModel);
+        updateModelFromDomain(model, domain);
 
+        // Para criação, precisamos garantir que o PersonModel base seja criado
+        if (model.getPerson() == null) {
+            PersonModel personModel = new PersonModel();
+            personModel.setPersonType(1);
+            if (domain.getId() != null) {
+                personModel.setId(domain.getId());
+            }
+            model.setPerson(personModel);
+        }
+
+        return model;
+    }
+
+    public void updateModelFromDomain(IndividualPersonModel model, IndividualPerson domain) {
+        if (domain == null || model == null) return;
+
+        model.setId(domain.getId());
         model.setPersonName(domain.getPersonName());
         model.setNaturalnessId(domain.getNaturalnessId());
         model.setRaceId(domain.getRaceId());
@@ -69,22 +83,34 @@ public class IndividualPersonMapper {
         model.setMotherName(domain.getMotherName());
         model.setFatherName(domain.getFatherName());
 
-        model.setAddress(addressMapper.toModel(domain.getAddress()));
-        if (model.getAddress() != null) {
-            model.getAddress().setPerson(model);
+        if (domain.getAddress() != null) {
+            if (model.getAddress() == null) {
+                model.setAddress(addressMapper.toModel(domain.getAddress()));
+                model.getAddress().setPerson(model);
+            } else {
+                addressMapper.updateModelFromDomain(model.getAddress(), domain.getAddress());
+            }
         }
 
-        model.setContact(contactMapper.toModel(domain.getContact()));
-        if (model.getContact() != null) {
-            model.getContact().setPerson(model);
+        if (domain.getContact() != null) {
+            if (model.getContact() == null) {
+                model.setContact(contactMapper.toModel(domain.getContact()));
+                model.getContact().setPerson(model);
+            } else {
+                contactMapper.updateModelFromDomain(model.getContact(), domain.getContact());
+            }
         }
 
-        model.setEducation(educationMapper.toModel(domain.getEducation()));
-        if (model.getEducation() != null) {
-            model.getEducation().setPerson(model);
+        if (domain.getEducation() != null) {
+            if (model.getEducation() == null) {
+                model.setEducation(educationMapper.toModel(domain.getEducation()));
+                model.getEducation().setPerson(model);
+            } else {
+                educationMapper.updateModelFromDomain(model.getEducation(), domain.getEducation());
+            }
         }
 
-        if (domain.getDocuments() != null) {
+        if (model.getDocuments() == null) {
             model.setDocuments(domain.getDocuments().stream()
                     .map(doc -> {
                         var docModel = documentMapper.toModel(doc);
@@ -93,11 +119,9 @@ public class IndividualPersonMapper {
                     })
                     .collect(Collectors.toList()));
         }
-
-        return model;
     }
 
-    public IndividualPerson toDomain(CreatePersonDTO dto) {
+    public IndividualPerson toDomain(IndividualPersonDTO dto) {
         if (dto == null) return null;
         IndividualPerson person = new IndividualPerson();
         person.setPersonName(dto.personName());
@@ -109,21 +133,56 @@ public class IndividualPersonMapper {
         person.setSexId(dto.sexId());
 
         if (dto.address() != null) {
-            person.setAddress(this.addressMapper.toDomain(dto.address()));
+            person.setAddress(addressMapper.toDomain(dto.address()));
         }
         if (dto.contact() != null) {
-            person.setContact(this.contactMapper.toDomain(dto.contact()));
+            person.setContact(contactMapper.toDomain(dto.contact()));
         }
         if (dto.education() != null) {
-            person.setEducation(this.educationMapper.toDomain(dto.education()));
+            person.setEducation(educationMapper.toDomain(dto.education()));
         }
         if (dto.documents() != null) {
             person.setDocuments(dto.documents().stream()
-                    .map(this.documentMapper::toDomain)
+                    .map(documentMapper::toDomain)
                     .collect(Collectors.toList()));
         }
 
         return person;
     }
 
+    public void updateDomainFromDto(IndividualPerson person, IndividualPersonDTO dto) {
+        if (dto == null) return;
+
+        if (dto.personName() != null) person.setPersonName(dto.personName());
+        if (dto.birthDate() != null) person.setBirthDate(dto.birthDate());
+        if (dto.motherName() != null) person.setMotherName(dto.motherName());
+        if (dto.fatherName() != null) person.setFatherName(dto.fatherName());
+        if (dto.naturalnessId() != null) person.setNaturalnessId(dto.naturalnessId());
+        if (dto.raceId() != null) person.setRaceId(dto.raceId());
+        if (dto.sexId() != null) person.setSexId(dto.sexId());
+
+        if (dto.address() != null) {
+            if (person.getAddress() == null) {
+                person.setAddress(addressMapper.toDomain(dto.address()));
+            } else {
+                addressMapper.updateDomainFromDto(person.getAddress(), dto.address());
+            }
+        }
+        
+        if (dto.contact() != null) {
+            if (person.getContact() == null) {
+                person.setContact(contactMapper.toDomain(dto.contact()));
+            } else {
+                contactMapper.updateDomainFromDto(person.getContact(), dto.contact());
+            }
+        }
+        
+        if (dto.education() != null) {
+            if (person.getEducation() == null) {
+                person.setEducation(educationMapper.toDomain(dto.education()));
+            } else {
+                educationMapper.updateDomainFromDto(person.getEducation(), dto.education());
+            }
+        }
+    }
 }

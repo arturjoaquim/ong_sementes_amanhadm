@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 public record CreateStudentDTO(
-    CreatePersonDTO person,
+    IndividualPersonDTO person,
     StudentDataDTO studentData,
-    List<StudentGuardianDTO> guardians,
+    List<CreateStudentGuardianDTO> guardians,
     Date registrationDate
 ) {}

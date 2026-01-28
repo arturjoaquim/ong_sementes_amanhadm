@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "prontuarios_saude", schema = "academico")
@@ -20,7 +20,7 @@ public class StudentHealthModel {
     private StudentModel student;
 
     @Column(name = "ubs_referencia")
-    private String referenceUbs;
+    private String ubsReference;
 
     @Column(name = "usa_oculos")
     private Boolean wearsGlasses;
@@ -29,8 +29,8 @@ public class StudentHealthModel {
     private LocalDate infoExpirationDate;
 
     @OneToMany(mappedBy = "healthRecord", cascade = CascadeType.ALL)
-    private List<StudentMedicationModel> medications;
+    private Set<StudentMedicationModel> medications;
 
     @OneToMany(mappedBy = "healthRecord", cascade = CascadeType.ALL)
-    private List<MedicalTreatmentModel> treatments;
+    private Set<MedicalTreatmentModel> treatments;
 }

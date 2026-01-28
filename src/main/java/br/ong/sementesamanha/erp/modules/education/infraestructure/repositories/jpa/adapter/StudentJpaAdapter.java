@@ -1,6 +1,7 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.jpa.adapter;
 
 import br.ong.sementesamanha.erp.modules.education.domain.entities.Student;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.StudentDetailsViewDTO;
 import br.ong.sementesamanha.erp.modules.education.domain.projections.StudentPreview;
 import br.ong.sementesamanha.erp.modules.education.domain.filters.StudentFilter;
 import br.ong.sementesamanha.erp.modules.education.domain.ports.repository.StudentRepository;
@@ -36,12 +37,11 @@ public class StudentJpaAdapter implements StudentRepository {
 
     @Override
     public List<StudentPreview> findAllPreviews(StudentFilter filter) {
-        // Combina a especificação de filtro com a especificação de fetch
         Specification<StudentModel> spec = StudentSpecification.withFilter(filter)
                 .and(StudentSpecification.fetchForPreview());
 
         List<StudentModel> models = studentJpaRepository.findAll(spec);
-
+        
         return models.stream()
                 .map(studentMapper::toPreview)
                 .collect(Collectors.toList());
@@ -49,7 +49,12 @@ public class StudentJpaAdapter implements StudentRepository {
 
     @Override
     public Student save(Student student) {
-        StudentModel model = studentMapper.toModel(student);
+        StudentModel model = Optional.ofNullable(student.getId())
+                .flatMap(studentJpaRepository::findById)
+                .orElseGet(StudentModel::new);
+
+        studentMapper.updateModelFromDomain(model, student);
+
         StudentModel savedModel = studentJpaRepository.save(model);
         return studentMapper.toDomain(savedModel);
     }
@@ -58,5 +63,14 @@ public class StudentJpaAdapter implements StudentRepository {
     public Optional<Student> findById(Long id) {
         return studentJpaRepository.findById(id)
                 .map(studentMapper::toDomain);
+    }
+
+    @Override
+    public Optional<StudentDetailsViewDTO> findDetailsById(Long id) {
+        Specification<StudentModel> spec = Specification.where((root, query, cb) -> cb.equal(root.get("id"), id));
+        spec = spec.and(StudentSpecification.fetchForDetails());
+
+        return studentJpaRepository.findOne(spec)
+                .map(studentMapper::toDetails);
     }
 }

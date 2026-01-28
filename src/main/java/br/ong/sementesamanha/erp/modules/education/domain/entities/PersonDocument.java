@@ -9,4 +9,5 @@ public class PersonDocument {
     private Long documentTypeId;
     private String number;
     private DocumentDetail documentDetail;
+    private Boolean active;
 }

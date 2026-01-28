@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -52,11 +51,12 @@ public class StudentModel extends Auditable {
     private StudentHealthModel healthRecord;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<DailyOccurrenceModel> occurrences;
+    @OrderBy("occurrenceDate DESC")
+    private Set<DailyOccurrenceModel> occurrences;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<WorkshopParticipantModel> workshopParticipations;
+    private Set<WorkshopParticipantModel> workshopParticipations;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<SocialInteractionModel> socialInteractions;
+    private Set<SocialInteractionModel> socialInteractions;
 }

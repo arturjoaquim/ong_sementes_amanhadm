@@ -1,8 +1,8 @@
 package br.ong.sementesamanha.erp.modules.education.application.dtos;
 
-public record CreateContactDTO(
+public record PersonContactDTO(
     String telephone,
     String mobilePhone,
-    boolean hasWhatsApp,
+    Boolean hasWhatsApp,
     String email
 ) {}

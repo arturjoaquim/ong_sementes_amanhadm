@@ -1,6 +1,7 @@
 package br.ong.sementesamanha.erp.modules.education.application.services;
 
-import br.ong.sementesamanha.erp.modules.education.application.dtos.StudentGuardianDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.CreateStudentGuardianDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.UpdateStudentDTO;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.IndividualPerson;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.Student;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.StudentGuardian;
@@ -9,9 +10,8 @@ import br.ong.sementesamanha.erp.modules.education.domain.ports.repository.Stude
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class StudentService {
@@ -29,20 +29,17 @@ public class StudentService {
     }
 
     @Transactional
-    public Student create(Student student, IndividualPerson person, List<StudentGuardianDTO> guardianLinks) {
-        // 1. Salva a pessoa do estudante
+    public Student create(Student student, IndividualPerson person, List<CreateStudentGuardianDTO> guardianLinks) {
         IndividualPerson savedPerson = personService.create(person);
         student.setPersonId(savedPerson.getId());
         student.setActive(true);
 
-        // 2. Valida e prepara os vínculos
         if (guardianLinks == null || guardianLinks.isEmpty()) {
             throw new IllegalArgumentException("Student must have at least one guardian.");
         }
 
-        Set<StudentGuardian> guardians = new HashSet<>();
-        for (StudentGuardianDTO link : guardianLinks) {
-            // Valida se o responsável existe
+        List<StudentGuardian> guardians = new ArrayList<>();
+        for (CreateStudentGuardianDTO link : guardianLinks) {
             guardianRepository.findById(link.guardianId())
                     .orElseThrow(() -> new IllegalArgumentException("Guardian not found with id: " + link.guardianId()));
             
@@ -53,23 +50,33 @@ public class StudentService {
         }
         student.setGuardians(guardians);
 
-        // 3. Salva o estudante com os vínculos em cascata
         return studentRepository.save(student);
     }
 
     @Transactional
-    public Student update(Long id, Student studentData) {
+    public Student update(Long id, UpdateStudentDTO dto) {
         Student existingStudent = findById(id);
         
-        if (studentData.getRegistrationOriginId() != null) {
-            existingStudent.setRegistrationOriginId(studentData.getRegistrationOriginId());
+        if (dto.studentData() != null) {
+            if (dto.studentData().registrationOriginId() != null) {
+                existingStudent.setRegistrationOriginId(dto.studentData().registrationOriginId());
+            }
+            if (dto.studentData().periodId() != null) {
+                existingStudent.setPeriodId(dto.studentData().periodId());
+            }
+            existingStudent.setHasTransportAutonomy(dto.studentData().hasTransportAutonomy());
+            if (dto.studentData().transportResponsibleName() != null) {
+                existingStudent.setTransportResponsibleName(dto.studentData().transportResponsibleName());
+            }
         }
-        if (studentData.getPeriodId() != null) {
-            existingStudent.setPeriodId(studentData.getPeriodId());
+
+        if (dto.active() != null) {
+            existingStudent.setActive(dto.active());
         }
-        existingStudent.setHasTransportAutonomy(studentData.isHasTransportAutonomy());
-        if (studentData.getTransportResponsibleName() != null) {
-            existingStudent.setTransportResponsibleName(studentData.getTransportResponsibleName());
+
+        // Atualização da Pessoa
+        if (dto.person() != null && existingStudent.getPersonId() != null) {
+            personService.update(existingStudent.getPersonId(), dto.person());
         }
         
         return studentRepository.save(existingStudent);

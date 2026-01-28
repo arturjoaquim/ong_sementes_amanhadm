@@ -7,6 +7,7 @@ import br.ong.sementesamanha.erp.modules.education.application.services.StudentS
 import br.ong.sementesamanha.erp.modules.education.domain.entities.IndividualPerson;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.Student;
 import br.ong.sementesamanha.erp.modules.education.domain.filters.StudentFilter;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.StudentDetailsViewDTO;
 import br.ong.sementesamanha.erp.modules.education.domain.projections.StudentPreview;
 import br.ong.sementesamanha.erp.modules.education.domain.ports.repository.StudentRepository;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.IndividualPersonMapper;
@@ -46,6 +47,13 @@ class StudentController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/{id}/details")
+    public ResponseEntity<StudentDetailsViewDTO> getStudentDetails(@PathVariable Long id) {
+        return studentRepository.findDetailsById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody CreateStudentDTO dto) {
         Student student = studentMapper.toDomain(dto);
@@ -57,8 +65,7 @@ class StudentController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody UpdateStudentDTO dto) {
-        Student student = studentMapper.toDomain(dto);
-        studentService.update(id, student);
+        studentService.update(id, dto);
         return ResponseEntity.noContent().build();
     }
 
