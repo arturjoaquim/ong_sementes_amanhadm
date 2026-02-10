@@ -1,11 +1,25 @@
 package br.ong.sementesamanha.erp.modules.education.domain.entities;
 
-import lombok.Data;
+import br.ong.sementesamanha.erp.modules.education.domain.entities.base.Auditable;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-public class LegalGuardian {
+import java.util.Set;
+
+@Entity
+@Table(name = "responsaveis_legais", schema = "academico")
+@Getter
+@Setter
+public class LegalGuardian extends Auditable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long personId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pessoa_id")
     private IndividualPerson person;
-    // O parentesco fica na tabela de junção (StudentGuardian), mas aqui representamos o responsável em si.
+
+    @OneToMany(mappedBy = "guardian", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<StudentGuardian> students;
 }

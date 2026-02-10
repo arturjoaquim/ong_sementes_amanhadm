@@ -1,8 +1,7 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.specifications;
 
+import br.ong.sementesamanha.erp.modules.education.domain.entities.*;
 import br.ong.sementesamanha.erp.modules.education.domain.filters.StudentFilter;
-import br.ong.sementesamanha.erp.modules.education.infraestructure.models.academico.*;
-import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.IndividualPersonModel;
 import jakarta.persistence.criteria.Fetch;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -13,7 +12,7 @@ import java.util.List;
 
 public class StudentSpecification {
 
-    public static Specification<StudentModel> withFilter(StudentFilter filter) {
+    public static Specification<Student> withFilter(StudentFilter filter) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -40,21 +39,22 @@ public class StudentSpecification {
         };
     }
 
-    public static Specification<StudentModel> fetchForPreview() {
+    public static Specification<Student> fetchForPreview() {
         return (root, query, criteriaBuilder) -> {
             if (query.getResultType() != Long.class && query.getResultType() != long.class) {
                 query.distinct(true);
 
-                Fetch<StudentModel, IndividualPersonModel> personFetch = root.fetch("person", JoinType.INNER);
-                personFetch.fetch("education", JoinType.INNER);
-                personFetch.fetch("address", JoinType.LEFT);
-                personFetch.fetch("contact", JoinType.LEFT);
+                Fetch<Student, IndividualPerson> personFetch = root.fetch("person", JoinType.INNER);
+                Fetch<IndividualPerson, Person> basePersonFetch = personFetch.fetch("basePerson", JoinType.INNER);
+                personFetch.fetch("education", JoinType.LEFT);
+                basePersonFetch.fetch("address", JoinType.LEFT);
+                basePersonFetch.fetch("contact", JoinType.LEFT);
 
                 // Fetch dos responsáveis e da pessoa/contato de cada responsável
-                Fetch<StudentModel, StudentGuardianModel> studenGuardianFetch = root.fetch("guardians", JoinType.INNER);
-                Fetch<StudentGuardianModel, LegalGuardianModel> guardianFetch = studenGuardianFetch.fetch("guardian", JoinType.INNER);
-                Fetch<LegalGuardianModel, IndividualPersonModel> personGuardianFetch = guardianFetch.fetch("person", JoinType.INNER);
-                personGuardianFetch.fetch("contact", JoinType.INNER);
+                Fetch<Student, StudentGuardian> studentGuardianFetch = root.fetch("guardians", JoinType.LEFT);
+                Fetch<StudentGuardian, LegalGuardian> guardianFetch = studentGuardianFetch.fetch("guardian", JoinType.LEFT);
+                Fetch<LegalGuardian, IndividualPerson> personGuardianFetch = guardianFetch.fetch("person", JoinType.LEFT);
+                personGuardianFetch.fetch("basePerson", JoinType.LEFT).fetch("contact", JoinType.LEFT);
                 
                 root.fetch("homeCondition", JoinType.LEFT);
                 root.fetch("healthRecord", JoinType.LEFT);
@@ -63,29 +63,30 @@ public class StudentSpecification {
         };
     }
 
-    public static Specification<StudentModel> fetchForDetails() {
+    public static Specification<Student> fetchForDetails() {
         return (root, query, criteriaBuilder) -> {
             if (query.getResultType() != Long.class && query.getResultType() != long.class) {
                 query.distinct(true);
 
                 // Person e filhos
-                Fetch<StudentModel, IndividualPersonModel> personFetch = root.fetch("person", JoinType.INNER);
-                personFetch.fetch("education", JoinType.INNER);
-                personFetch.fetch("address", JoinType.LEFT);
-                personFetch.fetch("contact", JoinType.LEFT);
-                personFetch.fetch("documents", JoinType.INNER);
+                Fetch<Student, IndividualPerson> personFetch = root.fetch("person", JoinType.INNER);
+                Fetch<IndividualPerson, Person> basePersonFecth = personFetch.fetch("basePerson", JoinType.INNER);
+                personFetch.fetch("education", JoinType.LEFT);
+                basePersonFecth.fetch("address", JoinType.LEFT);
+                basePersonFecth.fetch("contact", JoinType.LEFT);
+                basePersonFecth.fetch("documents", JoinType.INNER);
 
                 // Guardians e filhos
-                Fetch<StudentModel, StudentGuardianModel> studentGuardianFetch = root.fetch("guardians", JoinType.INNER);
-                Fetch<StudentGuardianModel, LegalGuardianModel> guardianFetch = studentGuardianFetch.fetch("guardian", JoinType.INNER);
-                Fetch<LegalGuardianModel, IndividualPersonModel> personGuardianFetch = guardianFetch.fetch("person", JoinType.INNER);
-                personGuardianFetch.fetch("contact", JoinType.INNER);
+                Fetch<Student, StudentGuardian> studentGuardianFetch = root.fetch("guardians", JoinType.LEFT);
+                Fetch<StudentGuardian, LegalGuardian> guardianFetch = studentGuardianFetch.fetch("guardian", JoinType.LEFT);
+                Fetch<LegalGuardian, IndividualPerson> personGuardianFetch = guardianFetch.fetch("person", JoinType.LEFT);
+                personGuardianFetch.fetch("basePerson", JoinType.LEFT).fetch("contact", JoinType.LEFT);
                 
                 // OneToOne
                 root.fetch("homeCondition", JoinType.LEFT);
                 
                 // HealthRecord e filhos (agora Sets, então fetch é seguro)
-                Fetch<StudentModel, StudentHealthModel> healthFetch = root.fetch("healthRecord", JoinType.LEFT);
+                Fetch<Student, StudentHealth> healthFetch = root.fetch("healthRecord", JoinType.LEFT);
                 healthFetch.fetch("medications", JoinType.LEFT);
                 healthFetch.fetch("treatments", JoinType.LEFT);
 
@@ -93,7 +94,7 @@ public class StudentSpecification {
                 root.fetch("occurrences", JoinType.LEFT);
                 root.fetch("socialInteractions", JoinType.LEFT);
                 
-                Fetch<StudentModel, WorkshopParticipantModel> workshopFetch = root.fetch("workshopParticipations", JoinType.LEFT);
+                Fetch<Student, WorkshopParticipant> workshopFetch = root.fetch("workshopParticipations", JoinType.LEFT);
                 workshopFetch.fetch("workshop", JoinType.LEFT);
             }
             return criteriaBuilder.conjunction();

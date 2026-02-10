@@ -1,13 +1,35 @@
 package br.ong.sementesamanha.erp.modules.education.domain.entities;
 
-import lombok.Data;
+import br.ong.sementesamanha.erp.modules.education.domain.entities.base.Auditable;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import java.util.Set;
 
-@Data
-public class User {
+@Entity
+@Table(name = "usuarios", schema = "sistema")
+@Getter
+@Setter
+public class User extends Auditable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "login")
     private String login;
-    private String password;
+
+    @Column(name = "senha_hash")
+    private String passwordHash;
+
+    @Column(name = "ativo")
     private boolean active;
-    private Set<String> roles;
+
+    @ManyToMany
+    @JoinTable(
+        name = "usuarios_grupos",
+        schema = "sistema",
+        joinColumns = @JoinColumn(name = "usuario_id"),
+        inverseJoinColumns = @JoinColumn(name = "grupo_id")
+    )
+    private Set<AccessGroup> groups;
 }

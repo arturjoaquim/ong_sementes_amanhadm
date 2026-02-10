@@ -1,14 +1,14 @@
 package br.ong.sementesamanha.erp.modules.education.application.services;
 
-import br.ong.sementesamanha.erp.modules.education.application.dtos.CreateEmployeeDTO;
-import br.ong.sementesamanha.erp.modules.education.application.dtos.UpdateEmployeeDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.employee.CreateEmployeeDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.employee.UpdateEmployeeDTO;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.Employee;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.IndividualPerson;
-import br.ong.sementesamanha.erp.modules.education.domain.ports.repository.EmployeeRepository;
+import br.ong.sementesamanha.erp.modules.education.domain.entities.User;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.enums.LookupTypeEnum;
-import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.EmployeeMapper;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.IndividualPersonMapper;
-import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.jpa.UserJpaRepository;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.EmployeeRepository;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,32 +18,30 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final IndividualPersonService personService;
     private final IndividualPersonMapper personMapper;
-    private final UserJpaRepository userRepository;
+    private final UserRepository userRepository;
     private final LookupService lookupService;
-    private final EmployeeMapper employeeMapper;
 
     public EmployeeService(EmployeeRepository employeeRepository,
                            IndividualPersonService personService,
                            IndividualPersonMapper personMapper,
-                           UserJpaRepository userRepository,
-                           LookupService lookupService,
-                           EmployeeMapper employeeMapper) {
+                           UserRepository userRepository,
+                           LookupService lookupService) {
         this.employeeRepository = employeeRepository;
         this.personService = personService;
         this.personMapper = personMapper;
         this.userRepository = userRepository;
         this.lookupService = lookupService;
-        this.employeeMapper = employeeMapper;
     }
 
     @Transactional
     public Employee create(CreateEmployeeDTO dto) {
-        // Validações
         if (lookupService.getLookupAsMap(LookupTypeEnum.POSITION).get(dto.positionId()) == null) {
             throw new IllegalArgumentException("Position not found with id: " + dto.positionId());
         }
+        
+        User systemUser = null;
         if (dto.systemUserId() != null) {
-            userRepository.findById(dto.systemUserId())
+            systemUser = userRepository.findById(dto.systemUserId())
                     .orElseThrow(() -> new IllegalArgumentException("System User not found with id: " + dto.systemUserId()));
         }
 
@@ -51,9 +49,9 @@ public class EmployeeService {
         IndividualPerson savedPerson = personService.create(person);
 
         Employee employee = new Employee();
-        employee.setPersonId(savedPerson.getId());
+        employee.setPerson(savedPerson);
         employee.setPositionId(dto.positionId());
-        employee.setSystemUserId(dto.systemUserId());
+        employee.setSystemUser(systemUser);
 
         return employeeRepository.save(employee);
     }
@@ -71,13 +69,13 @@ public class EmployeeService {
         }
 
         if (dto.systemUserId() != null) {
-            userRepository.findById(dto.systemUserId())
+            User user = userRepository.findById(dto.systemUserId())
                     .orElseThrow(() -> new IllegalArgumentException("System User not found with id: " + dto.systemUserId()));
-            existingEmployee.setSystemUserId(dto.systemUserId());
+            existingEmployee.setSystemUser(user);
         }
 
-        if (dto.person() != null && existingEmployee.getPersonId() != null) {
-            personService.update(existingEmployee.getPersonId(), dto.person());
+        if (dto.person() != null && existingEmployee.getPerson() != null) {
+            personService.update(existingEmployee.getPerson().getId(), dto.person());
         }
 
         return employeeRepository.save(existingEmployee);

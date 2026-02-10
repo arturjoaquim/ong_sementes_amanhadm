@@ -1,7 +1,8 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.security;
 
 import br.ong.sementesamanha.erp.modules.education.domain.entities.User;
-import br.ong.sementesamanha.erp.modules.education.domain.ports.repository.UserRepository;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.UserRepository;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.specifications.UserSpecification;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,7 +21,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByLoginWithRoles(username)
+        User user = userRepository.findOne(UserSpecification.withLoginAndGroups(username))
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
 
         return new UserDetailsImpl(user);

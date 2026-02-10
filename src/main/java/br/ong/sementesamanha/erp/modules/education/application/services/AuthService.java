@@ -1,8 +1,10 @@
 package br.ong.sementesamanha.erp.modules.education.application.services;
 
-import br.ong.sementesamanha.erp.modules.education.application.dtos.LoginDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.auth.LoginDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.user.UserDTO;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.User;
-import br.ong.sementesamanha.erp.modules.education.domain.ports.repository.UserRepository;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.UserMapper;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,15 +22,19 @@ public class AuthService {
     private final UserRepository userRepository;
     private final SecurityContextRepository securityContextRepository;
 
+    private final UserMapper userMapper;
+
     public AuthService(AuthenticationManager authenticationManager, 
                        UserRepository userRepository,
-                       SecurityContextRepository securityContextRepository) {
+                       SecurityContextRepository securityContextRepository,
+                       UserMapper userMapper) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.securityContextRepository = securityContextRepository;
+        this.userMapper = userMapper;
     }
 
-    public User login(LoginDTO dto, HttpServletRequest request, HttpServletResponse response) {
+    public UserDTO login(LoginDTO dto, HttpServletRequest request, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.login(), dto.password())
         );
@@ -37,10 +43,11 @@ public class AuthService {
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
         
-        // Salva o contexto na sessão explicitamente
         securityContextRepository.saveContext(context, request, response);
 
-        return userRepository.findByLogin(dto.login())
+        User loggedUser = userRepository.findByLogin(dto.login())
                 .orElseThrow(() -> new RuntimeException("User not found after authentication"));
+        loggedUser.setPasswordHash(null);
+        return userMapper.toDTO(loggedUser);
     }
 }

@@ -1,7 +1,7 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.config;
 
-import br.ong.sementesamanha.erp.modules.education.infraestructure.models.sistema.UserModel;
-import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.jpa.UserJpaRepository;
+import br.ong.sementesamanha.erp.modules.education.domain.entities.User;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,12 +13,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class DataInitializer {
 
     @Bean
-    public CommandLineRunner initAdminUser(UserJpaRepository userRepository, PasswordEncoder passwordEncoder) {
+    public CommandLineRunner initAdminUser(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             // Verifica se o usuario admin ja existe para nao duplicar ou sobrescrever
             if (userRepository.findByLogin("admin").isEmpty()) {
 
-                UserModel admin = new UserModel();
+                User admin = new User();
                 admin.setLogin("admin");
                 // A senha deve ser encodada (hash) antes de salvar
                 admin.setPasswordHash(passwordEncoder.encode("admin"));

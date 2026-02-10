@@ -1,18 +1,18 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.mappers;
 
+import br.ong.sementesamanha.erp.modules.education.application.dtos.student.SocialInteractionResponseDTO;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.SocialInteraction;
-import br.ong.sementesamanha.erp.modules.education.infraestructure.models.academico.SocialInteractionModel;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SocialInteractionMapper {
 
-    public SocialInteraction toDomain(SocialInteractionModel model) {
-        if (model == null) return null;
-        SocialInteraction domain = new SocialInteraction();
-        domain.setId(model.getId());
-        domain.setInteractionLevel(model.getInteractionLevel());
-        domain.setSocialGroupDescription(model.getSocialGroupDescription());
-        return domain;
+    public SocialInteractionResponseDTO toDTO(SocialInteraction entity) {
+        if (entity == null) return null;
+        return new SocialInteractionResponseDTO(
+            entity.getId(),
+            entity.getInteractionLevel(),
+            entity.getSocialGroupDescription()
+        );
     }
 }

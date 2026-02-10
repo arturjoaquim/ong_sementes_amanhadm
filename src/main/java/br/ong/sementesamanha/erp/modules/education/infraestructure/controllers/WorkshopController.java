@@ -1,6 +1,6 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.controllers;
 
-import br.ong.sementesamanha.erp.modules.education.application.dtos.CreateWorkshopDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.workshop.CreateWorkshopDTO;
 import br.ong.sementesamanha.erp.modules.education.application.services.WorkshopService;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.Workshop;
 import org.springframework.http.ResponseEntity;

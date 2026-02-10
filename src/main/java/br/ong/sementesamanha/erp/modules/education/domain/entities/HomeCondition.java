@@ -1,12 +1,33 @@
 package br.ong.sementesamanha.erp.modules.education.domain.entities;
 
-import lombok.Data;
+import br.ong.sementesamanha.erp.modules.education.domain.entities.base.Auditable;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-public class HomeCondition {
+@Entity
+@Table(name = "condicoes_domiciliares", schema = "academico")
+@Getter
+@Setter
+public class HomeCondition extends Auditable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long familyId;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "aluno_id")
+    private Student student;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "familia_id")
+    private Family family;
+
+    @Column(name = "estado_civil_pais_id")
     private Long parentsMaritalStatusId;
-    private Boolean contactWithSpouse;
-    private Boolean staysAlone;
+
+    @Column(name = "mantem_contato_conjuge")
+    private Boolean keepsContactWithSpouse;
+
+    @Column(name = "fica_sozinho_casa")
+    private Boolean staysAloneAtHome;
 }

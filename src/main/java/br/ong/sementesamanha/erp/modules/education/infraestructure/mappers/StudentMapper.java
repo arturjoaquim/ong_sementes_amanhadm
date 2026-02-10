@@ -1,140 +1,59 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.mappers;
 
-import br.ong.sementesamanha.erp.modules.education.application.dtos.CreateStudentDTO;
-import br.ong.sementesamanha.erp.modules.education.application.dtos.StudentPreviewDTO;
-import br.ong.sementesamanha.erp.modules.education.application.dtos.UpdateStudentDTO;
-import br.ong.sementesamanha.erp.modules.education.application.services.LookupService;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.person.PersonContactDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.student.CreateStudentDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.student.StudentDetailsResponseDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.student.StudentPreviewResponseDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.student.UpdateStudentDTO;
+import br.ong.sementesamanha.erp.modules.education.domain.entities.HomeCondition;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.Student;
-import br.ong.sementesamanha.erp.modules.education.domain.entities.StudentGuardian;
-import br.ong.sementesamanha.erp.modules.education.application.dtos.StudentDetailsViewDTO;
-import br.ong.sementesamanha.erp.modules.education.domain.projections.StudentPreview;
-import br.ong.sementesamanha.erp.modules.education.infraestructure.enums.LookupTypeEnum;
-import br.ong.sementesamanha.erp.modules.education.infraestructure.models.academico.StudentModel;
-import br.ong.sementesamanha.erp.modules.education.infraestructure.models.pessoas.IndividualPersonModel;
+import br.ong.sementesamanha.erp.modules.education.domain.entities.StudentHealth;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Component
 public class StudentMapper {
 
-    private final IndividualPersonMapper individualPersonMapper;
     private final StudentGuardianMapper studentGuardianMapper;
+    private final IndividualPersonMapper individualPersonMapper;
+    private final PersonContactMapper personContactMapper;
     private final StudentNoteMapper studentNoteMapper;
     private final StudentHealthMapper studentHealthMapper;
     private final HomeConditionMapper homeConditionMapper;
     private final SocialInteractionMapper socialInteractionMapper;
     private final WorkshopParticipantMapper workshopParticipantMapper;
-    private final LookupService lookupService;
+    private final LegalGuardianMapper legalGuardianMapper;
 
-    public StudentMapper(IndividualPersonMapper individualPersonMapper, 
-                         StudentGuardianMapper studentGuardianMapper,
+    public StudentMapper(StudentGuardianMapper studentGuardianMapper,
+                         IndividualPersonMapper individualPersonMapper,
+                         PersonContactMapper personContactMapper,
                          StudentNoteMapper studentNoteMapper,
                          StudentHealthMapper studentHealthMapper,
                          HomeConditionMapper homeConditionMapper,
                          SocialInteractionMapper socialInteractionMapper,
-                         WorkshopParticipantMapper workshopParticipantMapper,
-                         LookupService lookupService) {
-        this.individualPersonMapper = individualPersonMapper;
+                         WorkshopParticipantMapper workshopParticipantMapper, LegalGuardianMapper legalGuardianMapper) {
         this.studentGuardianMapper = studentGuardianMapper;
+        this.individualPersonMapper = individualPersonMapper;
+        this.personContactMapper = personContactMapper;
         this.studentNoteMapper = studentNoteMapper;
         this.studentHealthMapper = studentHealthMapper;
         this.homeConditionMapper = homeConditionMapper;
         this.socialInteractionMapper = socialInteractionMapper;
         this.workshopParticipantMapper = workshopParticipantMapper;
-        this.lookupService = lookupService;
+        this.legalGuardianMapper = legalGuardianMapper;
     }
 
-    public Student toDomain(StudentModel model) {
-        if (model == null) return null;
-        
-        Student student = new Student();
-        student.setId(model.getId());
-        if (model.getPerson() != null) {
-            student.setPersonId(model.getPerson().getId());
-        }
-        student.setRegistrationOriginId(model.getRegistrationOriginId());
-        student.setPeriodId(model.getPeriodId());
-        student.setHasTransportAutonomy(model.isHasTransportAutonomy());
-        student.setTransportResponsibleName(model.getTransportResponsibleName());
-        student.setRegistrationDate(model.getRegistrationDate());
-        student.setActive(model.isActive());
-
-        if (model.getGuardians() != null) {
-            student.setGuardians(model.getGuardians().stream()
-                    .map(studentGuardianMapper::toDomain)
-                    .collect(Collectors.toList()));
-        } else {
-            student.setGuardians(new ArrayList<>());
-        }
-
-        if (model.getOccurrences() != null) {
-            student.setNotes(model.getOccurrences().stream()
-                    .map(studentNoteMapper::toDomain)
-                    .collect(Collectors.toList()));
-        } else {
-            student.setNotes(new ArrayList<>());
-        }
-        
-        return student;
-    }
-
-    public StudentModel toModel(Student domain) {
-        if (domain == null) return null;
-        
-        StudentModel model = new StudentModel();
-        updateModelFromDomain(model, domain);
-        
-        return model;
-    }
-
-    public void updateModelFromDomain(StudentModel model, Student domain) {
-        if (domain == null || model == null) return;
-
-        model.setId(domain.getId());
-
-        if (domain.getPersonId() != null) {
-            IndividualPersonModel person = new IndividualPersonModel();
-            person.setId(domain.getPersonId());
-            model.setPerson(person);
-        }
-
-        model.setRegistrationOriginId(domain.getRegistrationOriginId());
-        model.setPeriodId(domain.getPeriodId());
-        model.setHasTransportAutonomy(domain.isHasTransportAutonomy());
-        model.setTransportResponsibleName(domain.getTransportResponsibleName());
-        model.setRegistrationDate(domain.getRegistrationDate());
-        model.setActive(domain.isActive());
-
-        if (domain.getGuardians() != null) {
-            if (model.getGuardians() == null) {
-                model.setGuardians(domain.getGuardians().stream()
-                        .map(sg -> studentGuardianMapper.toModel(sg, model))
-                        .collect(Collectors.toSet()));
-            }
-        }
-
-        if (domain.getNotes() != null) {
-            if (model.getOccurrences() == null) {
-                model.setOccurrences(domain.getNotes().stream()
-                        .map(note -> studentNoteMapper.toModel(note, model))
-                        .collect(Collectors.toSet()));
-            }
-        }
-    }
-
-    public StudentPreview toPreview(StudentModel model) {
+    public StudentPreviewResponseDTO toPreview(Student model) {
         if (model == null) return null;
 
         String studentName = (model.getPerson() != null) ? model.getPerson().getPersonName() : "N/A";
         String guardianName = model.getGuardians().iterator().next().getGuardian().getPerson().getPersonName();
-        String guardianPhone = model.getGuardians().iterator().next().getGuardian().getPerson().getContact().getMobilePhone();
+        String guardianPhone = model.getGuardians().iterator().next().getGuardian().getPerson().getBasePerson().getContact().getMobilePhone();
         Long gradeId = model.getPerson().getEducation().getEducationLevelId();
 
         Integer age = null;
@@ -143,53 +62,48 @@ public class StudentMapper {
             age = Period.between(birthDate, LocalDate.now()).getYears();
         }
 
-        return new StudentPreview(
+        return new StudentPreviewResponseDTO(
                 model.getId(),
                 studentName,
                 guardianName,
                 guardianPhone,
-                model.isActive(),
-                lookupService.getLookupAsMap(LookupTypeEnum.EDUCATION_LEVEL).get(gradeId).getName(),
+                model.isActive() ? "active" : "inactive",
+                0.0f,
+                gradeId,
                 age
         );
     }
 
-    public StudentPreviewDTO toDTO(StudentPreview preview) {
-        if (preview == null) return null;
-
-        return new StudentPreviewDTO(
-                preview.id(),
-                preview.studentName(),
-                preview.guardianName(),
-                preview.guardianPhone(),
-                preview.active() ? "Ativo" : "Inativo",
-                0.0f,
-                preview.grade(),
-                preview.age()
-        );
-    }
-
-    public StudentDetailsViewDTO toDetails(StudentModel model) {
+    public StudentDetailsResponseDTO toDetails(Student model) {
         if (model == null) return null;
 
-        return new StudentDetailsViewDTO(
+        PersonContactDTO emergencyContact = personContactMapper.toDTO(
+            model.getGuardians().iterator().next().getGuardian().getPerson().getBasePerson().getContact()
+        );
+
+        return new StudentDetailsResponseDTO(
             model.getId(),
-            individualPersonMapper.toDomain(model.getPerson()),
+            individualPersonMapper.toDTO(model.getPerson()),
             model.getRegistrationDate(),
             model.isActive() ? "active" : "inactive",
             0.0,
             model.getPeriodId(),
-            String.valueOf(model.getRegistrationOriginId()),
+            model.getRegistrationOriginId(),
             model.isHasTransportAutonomy(),
             model.getTransportResponsibleName(),
-            (model.getGuardians() != null && !model.getGuardians().isEmpty()) ? 
-                individualPersonMapper.toDomain(model.getGuardians().iterator().next().getGuardian().getPerson()).getContact() : null,
-            model.getOccurrences() != null ? model.getOccurrences().stream().map(studentNoteMapper::toDomain).collect(Collectors.toList()) : Collections.emptyList(),
-            model.getHealthRecord() != null ? studentHealthMapper.toDomain(model.getHealthRecord()) : null,
-            model.getHomeCondition() != null ? homeConditionMapper.toDomain(model.getHomeCondition()) : null,
-            model.getSocialInteractions() != null ? model.getSocialInteractions().stream().map(socialInteractionMapper::toDomain).collect(Collectors.toList()) : Collections.emptyList(),
-            model.getGuardians() != null ? model.getGuardians().stream().map(studentGuardianMapper::toDomain).collect(Collectors.toList()) : Collections.emptyList(),
-            model.getWorkshopParticipations() != null ? model.getWorkshopParticipations().stream().map(workshopParticipantMapper::toDomain).collect(Collectors.toList()) : Collections.emptyList()
+            (model.getGuardians() != null && !model.getGuardians().isEmpty()) ? emergencyContact: null,
+            model.getOccurrences() != null ?
+                model.getOccurrences().stream().map(studentNoteMapper::toDTO).toList() :
+                    Collections.emptyList(),
+            studentHealthMapper.toDTO(model.getHealthRecord()),
+            homeConditionMapper.toDTO(model.getHomeCondition()),
+            model.getSocialInteractions() != null ?
+                model.getSocialInteractions().stream().map(socialInteractionMapper::toDTO).toList():
+                    Collections.emptyList(),
+            model.getGuardians() != null ? model.getGuardians().stream().map(studentGuardianMapper::toDTO).toList() :
+                    Collections.emptyList(),
+            model.getWorkshopParticipations() != null ? model.getWorkshopParticipations().stream().map(workshopParticipantMapper::toDTO).toList() :
+                    Collections.emptyList()
         );
     }
 
@@ -203,34 +117,9 @@ public class StudentMapper {
             student.setHasTransportAutonomy(dto.studentData().hasTransportAutonomy());
             student.setTransportResponsibleName(dto.studentData().transportResponsibleName());
         }
-        
-        if (dto.guardians() != null) {
-            student.setGuardians(dto.guardians().stream().map(g -> {
-                StudentGuardian sg = new StudentGuardian();
-                sg.setGuardianId(g.guardianId());
-                sg.setKinshipId(g.kinshipId());
-                return sg;
-            }).collect(Collectors.toList()));
-        }
-
+        student.setHealthRecord(studentHealthMapper.toEntity(dto.healthData(), student));
+        student.setHomeCondition(homeConditionMapper.toEntity(dto.dwellingCondition(), student));
         student.setRegistrationDate(dto.registrationDate());
-        return student;
-    }
-
-    public Student toDomain(UpdateStudentDTO dto) {
-        if (dto == null) return null;
-        Student student = new Student();
-
-        if (dto.studentData() != null) {
-            student.setRegistrationOriginId(dto.studentData().registrationOriginId());
-            student.setPeriodId(dto.studentData().periodId());
-            student.setHasTransportAutonomy(dto.studentData().hasTransportAutonomy());
-            student.setTransportResponsibleName(dto.studentData().transportResponsibleName());
-        }
-
-        if (dto.active() != null) {
-            student.setActive(dto.active());
-        }
         return student;
     }
 
@@ -241,5 +130,44 @@ public class StudentMapper {
         return dateToConvert.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
+    }
+
+    public void updateDomainFromDTO(Student domain, UpdateStudentDTO dto) {
+        if (dto == null || domain == null || dto.studentData() == null)
+            return;
+
+        if (dto.studentData().periodId() != null) {
+            domain.setPeriodId(dto.studentData().periodId());
+        }
+
+        if (dto.studentData().hasTransportAutonomy() != null) {
+            domain.setHasTransportAutonomy(dto.studentData().hasTransportAutonomy());
+        }
+
+        if (dto.studentData().registrationOriginId() != null) {
+            domain.setRegistrationOriginId(dto.studentData().registrationOriginId());
+        }
+
+        if (dto.studentData().transportResponsibleName() != null) {
+            domain.setTransportResponsibleName(dto.studentData().transportResponsibleName());
+        }
+
+        if (dto.dwellingCondition() != null) {
+            if (domain.getHomeCondition() == null) {
+                HomeCondition newHome = new HomeCondition();
+                newHome.setStudent(domain);
+                domain.setHomeCondition(newHome);
+            }
+            homeConditionMapper.updateEntityFromDto(domain.getHomeCondition(), dto.dwellingCondition());
+        }
+
+        if (dto.healthData() != null) {
+            if (domain.getHealthRecord() == null) {
+                StudentHealth newHealth = new StudentHealth();
+                newHealth.setStudent(domain);
+                domain.setHealthRecord(newHealth);
+            }
+            studentHealthMapper.updateEntityFromDto(domain.getHealthRecord(), dto.healthData());
+        }
     }
 }

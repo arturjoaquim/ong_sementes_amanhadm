@@ -1,7 +1,7 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.controllers;
 
-import br.ong.sementesamanha.erp.modules.education.application.dtos.CreateEmployeeDTO;
-import br.ong.sementesamanha.erp.modules.education.application.dtos.UpdateEmployeeDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.employee.CreateEmployeeDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.employee.UpdateEmployeeDTO;
 import br.ong.sementesamanha.erp.modules.education.application.services.EmployeeService;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.Employee;
 import org.springframework.http.ResponseEntity;

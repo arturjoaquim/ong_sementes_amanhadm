@@ -22,17 +22,17 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (user.getRoles() == null) {
+        if (user.getGroups() == null) {
             return java.util.Collections.emptyList();
         }
-        return user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+        return user.getGroups().stream()
+                .map(group -> new SimpleGrantedAuthority("ROLE_" + group.getName().toUpperCase()))
                 .collect(Collectors.toList());
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return user.getPasswordHash();
     }
 
     @Override

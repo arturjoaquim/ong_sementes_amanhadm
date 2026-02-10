@@ -1,8 +1,8 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.controllers;
 
-import br.ong.sementesamanha.erp.modules.education.application.dtos.LoginDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.auth.LoginDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.user.UserDTO;
 import br.ong.sementesamanha.erp.modules.education.application.services.AuthService;
-import br.ong.sementesamanha.erp.modules.education.domain.entities.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +22,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginDTO dto, HttpServletRequest request, HttpServletResponse response) {
-        User user = authService.login(dto, request, response);
-        user.setPassword(null); // Remove a senha do retorno
+    public ResponseEntity<UserDTO> login(@RequestBody LoginDTO dto, HttpServletRequest request, HttpServletResponse response) {
+        UserDTO user = authService.login(dto, request, response);
         return ResponseEntity.ok(user);
     }
 }

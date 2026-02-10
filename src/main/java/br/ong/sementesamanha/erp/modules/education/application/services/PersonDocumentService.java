@@ -1,15 +1,14 @@
 package br.ong.sementesamanha.erp.modules.education.application.services;
 
-import br.ong.sementesamanha.erp.modules.education.application.dtos.PersonDocumentDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.person.PersonDocumentDTO;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.IndividualPerson;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.PersonDocument;
-import br.ong.sementesamanha.erp.modules.education.domain.ports.repository.IndividualPersonRepository;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.PersonDocumentMapper;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.IndividualPersonRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 @Service
 public class PersonDocumentService {
@@ -23,31 +22,31 @@ public class PersonDocumentService {
     }
 
     @Transactional
-    public PersonDocument addDocument(Long personId, PersonDocumentDTO dto) {
+    public PersonDocumentDTO addDocument(Long personId, PersonDocumentDTO dto) {
         IndividualPerson person = personRepository.findById(personId)
                 .orElseThrow(() -> new IllegalArgumentException("Person not found with id: " + personId));
 
-        PersonDocument newDocument = documentMapper.toDomain(dto);
+        PersonDocument newDocument = documentMapper.toDomain(dto, person.getBasePerson());
         
-        if (person.getDocuments() == null) {
-            person.setDocuments(new ArrayList<>());
+        if (person.getBasePerson().getDocuments() == null) {
+            person.getBasePerson().setDocuments(new ArrayList<>());
         }
-        person.getDocuments().add(newDocument);
+        person.getBasePerson().getDocuments().add(newDocument);
 
         personRepository.save(person);
-        return newDocument;
+        return documentMapper.toDTO(newDocument);
     }
 
     @Transactional
-    public PersonDocument updateDocument(Long personId, Long documentId, PersonDocumentDTO dto) {
+    public PersonDocumentDTO updateDocument(Long personId, Long documentId, PersonDocumentDTO dto) {
         IndividualPerson person = personRepository.findById(personId)
                 .orElseThrow(() -> new IllegalArgumentException("Person not found with id: " + personId));
 
-        if (person.getDocuments() == null) {
+        if (person.getBasePerson().getDocuments() == null) {
             throw new IllegalArgumentException("Document not found with id: " + documentId);
         }
 
-        PersonDocument documentToUpdate = person.getDocuments().stream()
+        PersonDocument documentToUpdate = person.getBasePerson().getDocuments().stream()
                 .filter(doc -> doc.getId() != null && doc.getId().equals(documentId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Document not found with id: " + documentId));
@@ -55,23 +54,21 @@ public class PersonDocumentService {
         documentMapper.updateDomainFromDto(documentToUpdate, dto);
 
         personRepository.save(person);
-        return documentToUpdate;
+        return documentMapper.toDTO(documentToUpdate);
     }
 
     @Transactional
-    public void inactivateDocument(Long personId, Long documentId) {
+    public void removeDocument(Long personId, Long documentId) {
         IndividualPerson person = personRepository.findById(personId)
                 .orElseThrow(() -> new IllegalArgumentException("Person not found with id: " + personId));
 
-        if (person.getDocuments() != null) {
-            Optional<PersonDocument> document = person.getDocuments().stream()
-                    .filter(doc -> doc.getId() != null && doc.getId().equals(documentId))
-                    .findFirst();
-
-            document.ifPresentOrElse(doc -> doc.setActive(false), () -> {
+        if (person.getBasePerson().getDocuments() != null) {
+            boolean removed = person.getBasePerson().getDocuments().removeIf(doc -> doc.getId() != null && doc.getId().equals(documentId));
+            if (removed) {
+                personRepository.save(person);
+            } else {
                 throw new IllegalArgumentException("Document not found with id: " + documentId);
-            });
-            personRepository.save(person);
+            }
         }
     }
 }
