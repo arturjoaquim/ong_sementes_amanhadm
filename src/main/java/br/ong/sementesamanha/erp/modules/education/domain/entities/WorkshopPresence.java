@@ -6,19 +6,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "participantes_oficina", schema = "academico")
+@Table(name = "oficina_presencas", schema = "academico")
 @Getter
 @Setter
-public class WorkshopParticipant extends Auditable {
+public class WorkshopPresence extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "oficina_id")
-    private Workshop workshop;
+    @JoinColumn(name = "sessao_oficina_id")
+    private WorkshopSession workshopSession;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "aluno_id")
-    private Student student;
+    @JoinColumn(name = "matricula_id")
+    private WorkshopEnrollment workshopEnrollment;
 }

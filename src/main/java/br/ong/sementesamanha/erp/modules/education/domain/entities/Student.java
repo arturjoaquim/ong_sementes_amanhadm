@@ -54,8 +54,5 @@ public class Student extends Auditable {
     private Set<StudentNote> occurrences;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<WorkshopParticipant> workshopParticipations;
-
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<SocialInteraction> socialInteractions;
 }

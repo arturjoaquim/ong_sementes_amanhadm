@@ -1,13 +1,11 @@
 package br.ong.sementesamanha.erp.modules.education.domain.entities;
 
+import br.ong.sementesamanha.erp.modules.education.domain.entities.base.Auditable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -15,32 +13,23 @@ import java.util.List;
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
-public class Workshop {
+public class Workshop extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "tipo_oficina_id")
-    private Long workshopTypeId;
+    @Column(name = "nome_oficina")
+    private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "educador_responsavel_id")
-    private Employee responsibleEducator;
+    @Column(name = "maximo_participantes")
+    private Integer enrollmentLimit;
 
-    @Column(name = "link_lista_presenca")
-    private String attendanceListLink;
-
-    @Column(name = "descricao")
-    private String description;
+    @Column(name = "ativo")
+    private Boolean active;
 
     @OneToMany(mappedBy = "workshop", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<WorkshopParticipant> participants;
+    private List<WorkshopSession> sessions;
 
-    @CreatedDate
-    @Column(name="criado_em")
-    private LocalDateTime createdDate;
-
-    @CreatedBy
-    @Column(name="criado_por_id")
-    private Long createdByUser;
+    @OneToMany(mappedBy = "workshop", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<WorkshopEnrollment> enrollments;
 }

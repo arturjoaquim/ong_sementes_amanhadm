@@ -6,7 +6,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ocorrencias_diarias", schema = "academico")
+@Table(name = "apontamentos_aluno", schema = "academico")
 @Getter
 @Setter
 public class StudentNote {
@@ -27,7 +27,7 @@ public class StudentNote {
     @Column(name = "descricao_completa")
     private String fullDescription;
 
-    @Column(name = "data_ocorrencia")
+    @Column(name = "data_apontamento")
     private LocalDateTime occurrenceDate;
 
     @ManyToOne(fetch = FetchType.LAZY)

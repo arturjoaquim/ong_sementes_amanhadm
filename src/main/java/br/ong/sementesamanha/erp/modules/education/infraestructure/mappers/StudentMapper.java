@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
@@ -26,7 +27,6 @@ public class StudentMapper {
     private final StudentHealthMapper studentHealthMapper;
     private final HomeConditionMapper homeConditionMapper;
     private final SocialInteractionMapper socialInteractionMapper;
-    private final WorkshopParticipantMapper workshopParticipantMapper;
     private final LegalGuardianMapper legalGuardianMapper;
 
     public StudentMapper(StudentGuardianMapper studentGuardianMapper,
@@ -36,7 +36,7 @@ public class StudentMapper {
                          StudentHealthMapper studentHealthMapper,
                          HomeConditionMapper homeConditionMapper,
                          SocialInteractionMapper socialInteractionMapper,
-                         WorkshopParticipantMapper workshopParticipantMapper, LegalGuardianMapper legalGuardianMapper) {
+                         LegalGuardianMapper legalGuardianMapper) {
         this.studentGuardianMapper = studentGuardianMapper;
         this.individualPersonMapper = individualPersonMapper;
         this.personContactMapper = personContactMapper;
@@ -44,7 +44,6 @@ public class StudentMapper {
         this.studentHealthMapper = studentHealthMapper;
         this.homeConditionMapper = homeConditionMapper;
         this.socialInteractionMapper = socialInteractionMapper;
-        this.workshopParticipantMapper = workshopParticipantMapper;
         this.legalGuardianMapper = legalGuardianMapper;
     }
 
@@ -82,28 +81,27 @@ public class StudentMapper {
         );
 
         return new StudentDetailsResponseDTO(
-            model.getId(),
-            individualPersonMapper.toDTO(model.getPerson()),
-            model.getRegistrationDate(),
-            model.isActive() ? "active" : "inactive",
-            0.0,
-            model.getPeriodId(),
-            model.getRegistrationOriginId(),
-            model.isHasTransportAutonomy(),
-            model.getTransportResponsibleName(),
-            (model.getGuardians() != null && !model.getGuardians().isEmpty()) ? emergencyContact: null,
-            model.getOccurrences() != null ?
-                model.getOccurrences().stream().map(studentNoteMapper::toDTO).toList() :
-                    Collections.emptyList(),
-            studentHealthMapper.toDTO(model.getHealthRecord()),
-            homeConditionMapper.toDTO(model.getHomeCondition()),
-            model.getSocialInteractions() != null ?
-                model.getSocialInteractions().stream().map(socialInteractionMapper::toDTO).toList():
-                    Collections.emptyList(),
-            model.getGuardians() != null ? model.getGuardians().stream().map(studentGuardianMapper::toDTO).toList() :
-                    Collections.emptyList(),
-            model.getWorkshopParticipations() != null ? model.getWorkshopParticipations().stream().map(workshopParticipantMapper::toDTO).toList() :
-                    Collections.emptyList()
+                model.getId(),
+                individualPersonMapper.toDTO(model.getPerson()),
+                model.getRegistrationDate(),
+                model.isActive() ? "active" : "inactive",
+                0.0,
+                model.getPeriodId(),
+                model.getRegistrationOriginId(),
+                model.isHasTransportAutonomy(),
+                model.getTransportResponsibleName(),
+                (model.getGuardians() != null && !model.getGuardians().isEmpty()) ? emergencyContact : null,
+                model.getOccurrences() != null ?
+                        model.getOccurrences().stream().map(studentNoteMapper::toDTO).toList() :
+                        Collections.emptyList(),
+                studentHealthMapper.toDTO(model.getHealthRecord()),
+                homeConditionMapper.toDTO(model.getHomeCondition()),
+                model.getSocialInteractions() != null ?
+                        model.getSocialInteractions().stream().map(socialInteractionMapper::toDTO).toList() :
+                        Collections.emptyList(),
+                model.getGuardians() != null ? model.getGuardians().stream().map(studentGuardianMapper::toDTO).toList() :
+                        Collections.emptyList(),
+                new ArrayList<>()
         );
     }
 

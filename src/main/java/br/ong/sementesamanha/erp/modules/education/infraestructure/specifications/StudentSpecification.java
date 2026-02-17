@@ -94,8 +94,6 @@ public class StudentSpecification {
                 root.fetch("occurrences", JoinType.LEFT);
                 root.fetch("socialInteractions", JoinType.LEFT);
                 
-                Fetch<Student, WorkshopParticipant> workshopFetch = root.fetch("workshopParticipations", JoinType.LEFT);
-                workshopFetch.fetch("workshop", JoinType.LEFT);
             }
             return criteriaBuilder.conjunction();
         };

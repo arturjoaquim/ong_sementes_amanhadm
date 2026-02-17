@@ -1,7 +1,9 @@
 package br.ong.sementesamanha.erp.modules.education.application.dtos.workshop;
 
-public record CreateWorkshopDTO(
+public record WorkshopPreviewResponseDTO(
+    Long id,
     String name,
     Integer enrollmentLimit,
-    Boolean active
+    Boolean active,
+    Integer sessionsCount
 ) {}

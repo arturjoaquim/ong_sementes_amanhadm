@@ -1,16 +1,21 @@
 package br.ong.sementesamanha.erp.modules.education.application.services;
 
 import br.ong.sementesamanha.erp.modules.education.application.dtos.employee.CreateEmployeeDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.employee.EmployeePreviewResponseDTO;
 import br.ong.sementesamanha.erp.modules.education.application.dtos.employee.UpdateEmployeeDTO;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.Employee;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.IndividualPerson;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.User;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.enums.LookupTypeEnum;
+import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.EmployeeMapper;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.IndividualPersonMapper;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.EmployeeRepository;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeService {
@@ -20,17 +25,39 @@ public class EmployeeService {
     private final IndividualPersonMapper personMapper;
     private final UserRepository userRepository;
     private final LookupService lookupService;
+    private final EmployeeMapper employeeMapper;
 
     public EmployeeService(EmployeeRepository employeeRepository,
                            IndividualPersonService personService,
                            IndividualPersonMapper personMapper,
                            UserRepository userRepository,
-                           LookupService lookupService) {
+                           LookupService lookupService,
+                           EmployeeMapper employeeMapper) {
         this.employeeRepository = employeeRepository;
         this.personService = personService;
         this.personMapper = personMapper;
         this.userRepository = userRepository;
         this.lookupService = lookupService;
+        this.employeeMapper = employeeMapper;
+    }
+
+    @Transactional(readOnly = true)
+    public Employee findByUserId(Long userId) {
+        return employeeRepository.findBySystemUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found for user id: " + userId));
+    }
+
+    @Transactional(readOnly = true)
+    public Employee findById(Long id) {
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found with id: " + id));
+    }
+
+    @Transactional(readOnly = true)
+    public List<EmployeePreviewResponseDTO> getAllPreviews() {
+        return employeeRepository.findAll().stream()
+                .map(employeeMapper::toPreview)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -79,5 +106,13 @@ public class EmployeeService {
         }
 
         return employeeRepository.save(existingEmployee);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        if (!employeeRepository.existsById(id)) {
+            throw new IllegalArgumentException("Employee not found with id: " + id);
+        }
+        employeeRepository.deleteById(id);
     }
 }
