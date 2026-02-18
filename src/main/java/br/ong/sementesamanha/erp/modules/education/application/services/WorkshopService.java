@@ -1,9 +1,6 @@
 package br.ong.sementesamanha.erp.modules.education.application.services;
 
-import br.ong.sementesamanha.erp.modules.education.application.dtos.workshop.CreateWorkshopDTO;
-import br.ong.sementesamanha.erp.modules.education.application.dtos.workshop.CreateWorkshopSessionDTO;
-import br.ong.sementesamanha.erp.modules.education.application.dtos.workshop.WorkshopDetailsResponseDTO;
-import br.ong.sementesamanha.erp.modules.education.application.dtos.workshop.WorkshopPreviewResponseDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.workshop.*;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.*;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.mappers.WorkshopMapper;
 import br.ong.sementesamanha.erp.modules.education.infraestructure.repositories.*;
@@ -102,12 +99,61 @@ public class WorkshopService {
     }
 
     @Transactional
-    public Workshop update(Long id, Workshop workshop) {
+    public void enrollStudent(Long workshopId, Long studentId) {
+        Workshop workshop = workshopRepository.findById(workshopId)
+                .orElseThrow(() -> new IllegalArgumentException("Workshop not found with id: " + workshopId));
+        
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found with id: " + studentId));
+
+        if (enrollmentRepository.findByStudentIdAndWorkshopId(studentId, workshopId).isPresent()) {
+            throw new IllegalArgumentException("Student already enrolled in this workshop");
+        }
+
+        WorkshopEnrollment enrollment = new WorkshopEnrollment();
+        enrollment.setStudent(student);
+        enrollment.setWorkshop(workshop);
+        enrollmentRepository.save(enrollment);
+    }
+
+    @Transactional
+    public void unenrollStudent(Long workshopId, Long studentId) {
+        WorkshopEnrollment enrollment = enrollmentRepository.findByStudentIdAndWorkshopId(studentId, workshopId)
+                .orElseThrow(() -> new IllegalArgumentException("Enrollment not found"));
+        
+        enrollmentRepository.delete(enrollment);
+    }
+
+    @Transactional
+    public void updateSessionPresences(Long sessionId, List<Long> studentIds) {
+        WorkshopSession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Session not found with id: " + sessionId));
+
+        // Limpar presenças existentes (ou atualizar, mas limpar e recriar é mais simples para lista completa)
+        session.getParticipants().clear();
+        
+        if (studentIds != null) {
+            for (Long studentId : studentIds) {
+                WorkshopEnrollment enrollment = enrollmentRepository.findByStudentIdAndWorkshopId(studentId, session.getWorkshop().getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Student not enrolled in workshop: " + studentId));
+                
+                WorkshopPresence presence = new WorkshopPresence();
+                presence.setWorkshopEnrollment(enrollment);
+                presence.setWorkshopSession(session);
+                session.getParticipants().add(presence);
+            }
+        }
+        
+        sessionRepository.save(session);
+    }
+
+    @Transactional
+    public Workshop update(Long id, UpdateWorkshopDTO workshop) {
         return workshopRepository.findById(id)
                 .map(existing -> {
-                    existing.setName(workshop.getName());
-                    existing.setEnrollmentLimit(workshop.getEnrollmentLimit());
-                    existing.setActive(workshop.getActive());
+                    existing.setName(workshop.name());
+                    existing.setEnrollmentLimit(workshop.enrollmentLimit());
+                    existing.setActive(workshop.active());
                     return workshopRepository.save(existing);
                 })
                 .orElseThrow(() -> new RuntimeException("Workshop not found with id " + id));

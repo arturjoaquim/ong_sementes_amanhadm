@@ -8,5 +8,5 @@ public record StudentPreviewResponseDTO(
     String status,
     Float attendance,
     Long educationLevelId, // Revertido para ID
-    Integer age
+	Integer age
 ) {}

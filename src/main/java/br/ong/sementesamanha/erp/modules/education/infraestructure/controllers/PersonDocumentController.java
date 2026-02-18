@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/people/{personId}/documents")
@@ -15,6 +16,11 @@ public class PersonDocumentController {
 
     public PersonDocumentController(PersonDocumentService service) {
         this.service = service;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PersonDocumentDTO>> getDocuments(@PathVariable Long personId) {
+        return ResponseEntity.ok(service.getDocuments(personId));
     }
 
     @PostMapping
@@ -29,8 +35,8 @@ public class PersonDocumentController {
         return ResponseEntity.ok(updatedDocument);
     }
 
-    @PatchMapping("/{documentId}/inactivate")
-    public ResponseEntity<Void> inactivateDocument(@PathVariable Long personId, @PathVariable Long documentId) {
+    @DeleteMapping("/{documentId}")
+    public ResponseEntity<Void> removeDocument(@PathVariable Long personId, @PathVariable Long documentId) {
         service.removeDocument(personId, documentId);
         return ResponseEntity.noContent().build();
     }

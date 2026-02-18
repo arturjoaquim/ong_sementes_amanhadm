@@ -3,11 +3,15 @@ package br.ong.sementesamanha.erp.modules.education.infraestructure.specificatio
 import br.ong.sementesamanha.erp.modules.education.domain.entities.*;
 import br.ong.sementesamanha.erp.modules.education.domain.filters.StudentFilter;
 import jakarta.persistence.criteria.Fetch;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class StudentSpecification {
@@ -24,15 +28,39 @@ public class StudentSpecification {
             }
 
             if (filter.getGuardianName() != null && !filter.getGuardianName().isEmpty()) {
-                 predicates.add(criteriaBuilder.like(
+                 // Busca em transportResponsibleName OU nos nomes dos responsáveis legais
+                 Predicate transportResp = criteriaBuilder.like(
                          criteriaBuilder.lower(root.get("transportResponsibleName")), 
                          "%" + filter.getGuardianName().toLowerCase() + "%"
-                 ));
+                 );
+
+                 Join<Student, StudentGuardian> guardiansJoin = root.join("guardians", JoinType.LEFT);
+                 Join<StudentGuardian, LegalGuardian> guardianJoin = guardiansJoin.join("guardian", JoinType.LEFT);
+                 Join<LegalGuardian, IndividualPerson> personJoin = guardianJoin.join("person", JoinType.LEFT);
+                 
+                 Predicate legalGuardianName = criteriaBuilder.like(
+                         criteriaBuilder.lower(personJoin.get("personName")),
+                         "%" + filter.getGuardianName().toLowerCase() + "%"
+                 );
+
+                 predicates.add(criteriaBuilder.or(transportResp, legalGuardianName));
             }
 
             if (filter.getStatus() != null && !filter.getStatus().isEmpty()) {
                 boolean isActive = "ativo".equalsIgnoreCase(filter.getStatus());
                 predicates.add(criteriaBuilder.equal(root.get("active"), isActive));
+            }
+
+            if (filter.getMinAge() != null) {
+                LocalDate maxBirthDate = LocalDate.now().minusYears(filter.getMinAge());
+                Date date = Date.from(maxBirthDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("person").get("birthDate"), date));
+            }
+
+            if (filter.getMaxAge() != null) {
+                LocalDate minBirthDate = LocalDate.now().minusYears(filter.getMaxAge() + 1).plusDays(1);
+                Date date = Date.from(minBirthDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("person").get("birthDate"), date));
             }
             
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
@@ -58,6 +86,12 @@ public class StudentSpecification {
                 
                 root.fetch("homeCondition", JoinType.LEFT);
                 root.fetch("healthRecord", JoinType.LEFT);
+
+                // Fetch enrollments e presences para cálculo de frequência
+                Fetch<Student, WorkshopEnrollment> enrollmentFetch = root.fetch("enrollments", JoinType.LEFT);
+                enrollmentFetch.fetch("presences", JoinType.LEFT);
+                Fetch<WorkshopEnrollment, Workshop> workshopFetch = enrollmentFetch.fetch("workshop", JoinType.LEFT);
+                workshopFetch.fetch("sessions", JoinType.LEFT);
             }
             return criteriaBuilder.conjunction();
         };
@@ -94,6 +128,8 @@ public class StudentSpecification {
                 root.fetch("occurrences", JoinType.LEFT);
                 root.fetch("socialInteractions", JoinType.LEFT);
                 
+                // Enrollments
+                root.fetch("enrollments", JoinType.LEFT);
             }
             return criteriaBuilder.conjunction();
         };

@@ -27,7 +27,6 @@ public class StudentMapper {
     private final StudentHealthMapper studentHealthMapper;
     private final HomeConditionMapper homeConditionMapper;
     private final SocialInteractionMapper socialInteractionMapper;
-    private final LegalGuardianMapper legalGuardianMapper;
 
     public StudentMapper(StudentGuardianMapper studentGuardianMapper,
                          IndividualPersonMapper individualPersonMapper,
@@ -35,8 +34,7 @@ public class StudentMapper {
                          StudentNoteMapper studentNoteMapper,
                          StudentHealthMapper studentHealthMapper,
                          HomeConditionMapper homeConditionMapper,
-                         SocialInteractionMapper socialInteractionMapper,
-                         LegalGuardianMapper legalGuardianMapper) {
+                         SocialInteractionMapper socialInteractionMapper) {
         this.studentGuardianMapper = studentGuardianMapper;
         this.individualPersonMapper = individualPersonMapper;
         this.personContactMapper = personContactMapper;
@@ -44,7 +42,6 @@ public class StudentMapper {
         this.studentHealthMapper = studentHealthMapper;
         this.homeConditionMapper = homeConditionMapper;
         this.socialInteractionMapper = socialInteractionMapper;
-        this.legalGuardianMapper = legalGuardianMapper;
     }
 
     public StudentPreviewResponseDTO toPreview(Student model) {
@@ -61,13 +58,15 @@ public class StudentMapper {
             age = Period.between(birthDate, LocalDate.now()).getYears();
         }
 
+        float attendace = (float) model.getAttendance();
+
         return new StudentPreviewResponseDTO(
                 model.getId(),
                 studentName,
                 guardianName,
                 guardianPhone,
                 model.isActive() ? "active" : "inactive",
-                0.0f,
+                attendace,
                 gradeId,
                 age
         );
@@ -85,7 +84,7 @@ public class StudentMapper {
                 individualPersonMapper.toDTO(model.getPerson()),
                 model.getRegistrationDate(),
                 model.isActive() ? "active" : "inactive",
-                0.0,
+                model.getAttendance(),
                 model.getPeriodId(),
                 model.getRegistrationOriginId(),
                 model.isHasTransportAutonomy(),

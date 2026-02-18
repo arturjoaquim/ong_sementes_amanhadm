@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Set;
 
@@ -55,4 +57,36 @@ public class Student extends Auditable {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<SocialInteraction> socialInteractions;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<WorkshopEnrollment> enrollments;
+
+    public double getAttendance() {
+       double attendace = 0.0d;
+
+        LocalDateTime registrationDateTime = new java.util.Date(this.getRegistrationDate().getTime())
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        if (this.getEnrollments() != null && !this.getEnrollments().isEmpty()) {
+            long totalSessions = this.getEnrollments().stream()
+                    .filter(e -> e.getWorkshop() != null && e.getWorkshop().getSessions() != null)
+                    .mapToLong(e -> e.getWorkshop().getSessions().stream()
+                            .filter(s -> s.getCreatedAt().isAfter(registrationDateTime))
+                            .count())
+                    .sum();
+
+            long totalPresences = this.getEnrollments().stream()
+                    .filter(e -> e.getPresences() != null)
+                    .mapToLong(e -> e.getPresences().size())
+                    .sum();
+
+            if (totalSessions > 0) {
+                attendace = (double) totalPresences / totalSessions * 100;
+            }
+        }
+
+        return attendace;
+    }
 }

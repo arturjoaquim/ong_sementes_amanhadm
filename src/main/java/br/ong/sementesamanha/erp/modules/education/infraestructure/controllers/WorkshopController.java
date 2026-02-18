@@ -1,10 +1,6 @@
 package br.ong.sementesamanha.erp.modules.education.infraestructure.controllers;
 
-import br.ong.sementesamanha.erp.modules.education.application.dtos.workshop.CreateWorkshopDTO;
-import br.ong.sementesamanha.erp.modules.education.application.dtos.workshop.CreateWorkshopSessionDTO;
-import br.ong.sementesamanha.erp.modules.education.application.dtos.workshop.WorkshopDetailsResponseDTO;
-import br.ong.sementesamanha.erp.modules.education.application.dtos.workshop.WorkshopPreviewResponseDTO;
-import br.ong.sementesamanha.erp.modules.education.application.dtos.workshop.WorkshopSessionResponseDTO;
+import br.ong.sementesamanha.erp.modules.education.application.dtos.workshop.*;
 import br.ong.sementesamanha.erp.modules.education.application.services.WorkshopService;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.Workshop;
 import br.ong.sementesamanha.erp.modules.education.domain.entities.WorkshopSession;
@@ -49,8 +45,26 @@ public class WorkshopController {
         return ResponseEntity.created(URI.create("/workshops/sessions/" + created.getId())).body(mapper.toSessionResponseDTO(created));
     }
 
+    @PostMapping("/{workshopId}/enrollments")
+    public ResponseEntity<Void> enrollStudent(@PathVariable Long workshopId, @RequestBody EnrollStudentDTO dto) {
+        service.enrollStudent(workshopId, dto.studentId());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{workshopId}/enrollments/{studentId}")
+    public ResponseEntity<Void> unenrollStudent(@PathVariable Long workshopId, @PathVariable Long studentId) {
+        service.unenrollStudent(workshopId, studentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/sessions/{sessionId}/presences")
+    public ResponseEntity<Void> updateSessionPresences(@PathVariable Long sessionId, @RequestBody UpdatePresencesDTO dto) {
+        service.updateSessionPresences(sessionId, dto.studentIds());
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping("/{id}")
-    public ResponseEntity<WorkshopDetailsResponseDTO> update(@PathVariable Long id, @RequestBody Workshop workshop) {
+    public ResponseEntity<WorkshopDetailsResponseDTO> update(@PathVariable Long id, @RequestBody UpdateWorkshopDTO workshop) {
         Workshop updated = service.update(id, workshop);
         return ResponseEntity.ok(mapper.toDetails(updated));
     }

@@ -61,7 +61,7 @@ public class DashboardService {
         });
 
         workshopSessionRepository.findTop5ByOrderByCreatedAtDesc().forEach(ws -> {
-            activities.add(new RecentActivityDTO(ws.getId(), "Nova Oficina", ws.getWorkshop().getName(), ws.getCreatedAt(), "WORKSHOP"));
+            activities.add(new RecentActivityDTO(ws.getId(), "Nova Sessão de Oficina", ws.getWorkshop().getName(), ws.getCreatedAt(), "WORKSHOP"));
         });
 
         employeeRepository.findTop5ByOrderByCreatedAtDesc().forEach(e -> {

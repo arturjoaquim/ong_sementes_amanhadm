@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PersonDocumentService {
@@ -19,6 +22,20 @@ public class PersonDocumentService {
     public PersonDocumentService(IndividualPersonRepository personRepository, PersonDocumentMapper documentMapper) {
         this.personRepository = personRepository;
         this.documentMapper = documentMapper;
+    }
+
+    @Transactional(readOnly = true)
+    public List<PersonDocumentDTO> getDocuments(Long personId) {
+        IndividualPerson person = personRepository.findById(personId)
+                .orElseThrow(() -> new IllegalArgumentException("Person not found with id: " + personId));
+
+        if (person.getBasePerson().getDocuments() == null) {
+            return Collections.emptyList();
+        }
+
+        return person.getBasePerson().getDocuments().stream()
+                .map(documentMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional

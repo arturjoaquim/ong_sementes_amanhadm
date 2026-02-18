@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "oficina_matriculas", schema = "academico")
 @Getter
@@ -24,4 +26,7 @@ public class WorkshopEnrollment extends Auditable {
 
 	@Column(name = "ativo")
 	private Boolean active = true;
+
+	@OneToMany(mappedBy = "workshopEnrollment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private Set<WorkshopPresence> presences;
 }

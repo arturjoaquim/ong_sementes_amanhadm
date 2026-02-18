@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "oficinas", schema = "academico")
@@ -28,8 +28,8 @@ public class Workshop extends Auditable {
     private Boolean active;
 
     @OneToMany(mappedBy = "workshop", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<WorkshopSession> sessions;
+    private Set<WorkshopSession> sessions;
 
     @OneToMany(mappedBy = "workshop", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<WorkshopEnrollment> enrollments;
+    private Set<WorkshopEnrollment> enrollments;
 }
