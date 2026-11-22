@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.0</version>
+		<version>4.0.10</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>br.ong.sementesamanha</groupId>
@@ -28,6 +28,9 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<tomcat.version>11.0.29</tomcat.version>
+		<postgresql.version>42.7.14</postgresql.version>
+		<logback.version>1.5.25</logback.version>
 	</properties>
 	<dependencies>
 		<dependency>
